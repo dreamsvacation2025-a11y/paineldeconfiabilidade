@@ -1,0 +1,2818 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>O Código da Confiabilidade – Daniel Morais</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  :root {
+    --navy: #1B3A6B;
+    --navy-light: #2A52A0;
+    --navy-dark: #0F2244;
+    --accent: #2563EB;
+    --accent-light: #EFF6FF;
+    --gold: #C9A84C;
+    --white: #FFFFFF;
+    --gray-50: #F8FAFC;
+    --gray-100: #F1F5F9;
+    --gray-200: #E2E8F0;
+    --gray-400: #94A3B8;
+    --gray-600: #475569;
+    --gray-800: #1E293B;
+    --red: #DC2626;
+    --red-light: #FEF2F2;
+    --yellow: #D97706;
+    --yellow-light: #FFFBEB;
+    --green: #059669;
+    --green-light: #ECFDF5;
+    --blue-light: #EFF6FF;
+    --radius: 10px;
+    --shadow: 0 1px 3px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.06);
+    --shadow-lg: 0 8px 32px rgba(27,58,107,.12);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--gray-50);
+    color: var(--gray-800);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: linear-gradient(135deg, var(--navy-dark) 0%, var(--navy) 60%, var(--navy-light) 100%);
+    color: #fff;
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 72px;
+    box-shadow: 0 2px 16px rgba(0,0,0,.18);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .header-brand { display: flex; align-items: center; gap: 14px; }
+  .brand-icon {
+    width: 42px; height: 42px;
+    background: linear-gradient(135deg, var(--gold), #e8c97a);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 900; color: var(--navy-dark);
+    letter-spacing: -1px; flex-shrink: 0;
+  }
+  .brand-text h1 { font-size: 18px; font-weight: 700; letter-spacing: .3px; }
+  .brand-text p { font-size: 11px; color: rgba(255,255,255,.6); margin-top: 1px; }
+  .header-actions { display: flex; gap: 10px; }
+  .btn-header {
+    padding: 7px 16px; border-radius: 6px; font-size: 12px; font-weight: 600;
+    cursor: pointer; border: none; text-decoration: none; display: inline-flex;
+    align-items: center; gap: 6px; transition: all .18s;
+  }
+  .btn-book { background: var(--gold); color: var(--navy-dark); }
+  .btn-book:hover { background: #e8c97a; transform: translateY(-1px); }
+  .btn-author { background: rgba(255,255,255,.12); color: #fff; border: 1px solid rgba(255,255,255,.25); }
+  .btn-author:hover { background: rgba(255,255,255,.2); }
+
+  /* ── NAV TABS ── */
+  nav {
+    background: var(--white);
+    border-bottom: 1px solid var(--gray-200);
+    padding: 0 32px;
+    display: flex; gap: 0;
+  }
+  .tab {
+    padding: 14px 20px; font-size: 13px; font-weight: 600; color: var(--gray-600);
+    cursor: pointer; border: none; background: none;
+    border-bottom: 3px solid transparent; transition: all .18s;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .tab:hover { color: var(--navy); }
+  .tab.active { color: var(--navy); border-bottom-color: var(--navy); }
+
+  /* ── MAIN ── */
+  main { padding: 28px 32px; max-width: 1400px; margin: 0 auto; }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── UPLOAD ZONE ── */
+  .upload-card {
+    background: var(--white); border-radius: var(--radius);
+    border: 2px dashed var(--gray-200); padding: 28px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 20px; margin-bottom: 24px; box-shadow: var(--shadow);
+    transition: border-color .2s;
+  }
+  .upload-card:hover { border-color: var(--accent); }
+  .upload-info h3 { font-size: 14px; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+  .upload-info p { font-size: 12px; color: var(--gray-400); }
+  .upload-actions { display: flex; gap: 10px; align-items: center; flex-shrink: 0; }
+  .btn-upload {
+    background: var(--navy); color: #fff; border: none; padding: 9px 20px;
+    border-radius: 7px; font-size: 13px; font-weight: 600; cursor: pointer;
+    display: flex; align-items: center; gap: 7px; transition: background .18s;
+  }
+  .btn-upload:hover { background: var(--navy-light); }
+  .btn-download-template {
+    background: var(--accent-light); color: var(--accent); border: 1px solid #BFDBFE;
+    padding: 9px 18px; border-radius: 7px; font-size: 13px; font-weight: 600;
+    cursor: pointer; display: flex; align-items: center; gap: 7px; transition: all .18s;
+  }
+  .btn-download-template:hover { background: #DBEAFE; }
+  .status-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
+  }
+  .status-ok { background: var(--green-light); color: var(--green); }
+  .status-wait { background: var(--yellow-light); color: var(--yellow); }
+
+  /* ── KPI ROW ── */
+  .kpi-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 24px; }
+  .kpi-card {
+    background: var(--white); border-radius: var(--radius);
+    padding: 18px 20px; box-shadow: var(--shadow);
+    border-left: 4px solid var(--navy);
+  }
+  .kpi-card.kpi-red { border-left-color: var(--red); }
+  .kpi-card.kpi-green { border-left-color: var(--green); }
+  .kpi-card.kpi-yellow { border-left-color: var(--yellow); }
+  .kpi-card.kpi-gold { border-left-color: var(--gold); }
+  .kpi-label { font-size: 11px; font-weight: 600; color: var(--gray-400); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+  .kpi-value { font-size: 26px; font-weight: 800; color: var(--navy); line-height: 1; }
+  .kpi-sub { font-size: 11px; color: var(--gray-400); margin-top: 5px; }
+
+  /* ── FILTERS ── */
+  .filters {
+    background: var(--white); border-radius: var(--radius);
+    padding: 16px 20px; box-shadow: var(--shadow);
+    display: flex; gap: 16px; align-items: flex-end; margin-bottom: 24px; flex-wrap: wrap;
+  }
+  .filter-group { display: flex; flex-direction: column; gap: 5px; }
+  .filter-group label { font-size: 11px; font-weight: 700; color: var(--gray-600); text-transform: uppercase; letter-spacing: .4px; }
+  .filter-group select, .filter-group input {
+    padding: 8px 12px; border: 1px solid var(--gray-200); border-radius: 7px;
+    font-size: 13px; color: var(--gray-800); background: var(--gray-50);
+    min-width: 160px; cursor: pointer; transition: border-color .18s;
+  }
+  .filter-group select:focus, .filter-group input:focus {
+    outline: none; border-color: var(--accent); background: var(--white);
+  }
+  .btn-apply {
+    background: var(--navy); color: #fff; border: none; padding: 9px 20px;
+    border-radius: 7px; font-size: 13px; font-weight: 600; cursor: pointer;
+    transition: background .18s; align-self: flex-end;
+  }
+  .btn-apply:hover { background: var(--navy-light); }
+
+  /* ── GRID 2 COLS ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+
+  /* ── CHART CARD ── */
+  .chart-card {
+    background: var(--white); border-radius: var(--radius);
+    padding: 22px; box-shadow: var(--shadow);
+  }
+  .chart-card.full { grid-column: 1 / -1; }
+  .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+  .card-title { font-size: 14px; font-weight: 700; color: var(--navy); display: flex; align-items: center; gap: 8px; }
+  .card-badge {
+    font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 20px;
+    background: var(--accent-light); color: var(--accent);
+  }
+  .chart-wrap { position: relative; height: 280px; }
+  .chart-wrap.tall { height: 360px; }
+
+  /* ── QUADRANT ── */
+  .quadrant-wrap {
+    position: relative; height: 380px;
+    background: var(--gray-50); border-radius: 8px; overflow: hidden;
+  }
+  .quad-label {
+    position: absolute; font-size: 10px; font-weight: 800; padding: 6px 10px;
+    border-radius: 5px; letter-spacing: .5px; pointer-events: none; z-index: 2;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .q-tl { top: 10px; left: 10px; background: var(--yellow-light); color: var(--yellow); }
+  .q-tr { top: 10px; right: 10px; background: var(--green-light); color: var(--green); }
+  .q-bl { bottom: 10px; left: 10px; background: var(--red-light); color: var(--red); }
+  .q-br { bottom: 10px; right: 10px; background: var(--blue-light); color: var(--accent); }
+
+  /* ── RANKING TABLE ── */
+  .ranking-table { width: 100%; border-collapse: collapse; }
+  .ranking-table th {
+    font-size: 11px; font-weight: 700; color: var(--gray-400);
+    text-transform: uppercase; letter-spacing: .4px;
+    padding: 10px 12px; border-bottom: 2px solid var(--gray-200); text-align: left;
+  }
+  .ranking-table td { padding: 10px 12px; font-size: 13px; border-bottom: 1px solid var(--gray-100); }
+  .ranking-table tr:last-child td { border-bottom: none; }
+  .ranking-table tr:hover td { background: var(--gray-50); }
+  .rank-num {
+    width: 26px; height: 26px; border-radius: 50%; display: inline-flex;
+    align-items: center; justify-content: center; font-size: 11px; font-weight: 800;
+    background: var(--navy); color: #fff;
+  }
+  .rank-num.gold { background: var(--gold); color: var(--navy-dark); }
+  .rank-num.silver { background: #94A3B8; color: #fff; }
+  .rank-num.bronze { background: #B45309; color: #fff; }
+  .mtbf-bar-wrap { display: flex; align-items: center; gap: 8px; }
+  .mtbf-bar-bg { flex: 1; height: 6px; background: var(--gray-200); border-radius: 3px; }
+  .mtbf-bar-fill { height: 6px; border-radius: 3px; background: var(--navy); }
+  .tag {
+    display: inline-block; padding: 2px 8px; border-radius: 20px;
+    font-size: 10px; font-weight: 700;
+  }
+  .tag-red { background: var(--red-light); color: var(--red); }
+  .tag-green { background: var(--green-light); color: var(--green); }
+  .tag-yellow { background: var(--yellow-light); color: var(--yellow); }
+  .tag-blue { background: var(--blue-light); color: var(--accent); }
+
+  /* ── INSIGHTS ── */
+  .insight-list { display: flex; flex-direction: column; gap: 10px; }
+  .insight-item {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 14px; border-radius: 8px; border: 1px solid;
+  }
+  .insight-item.good { background: var(--green-light); border-color: #A7F3D0; }
+  .insight-item.warn { background: var(--yellow-light); border-color: #FDE68A; }
+  .insight-item.bad { background: var(--red-light); border-color: #FECACA; }
+  .insight-item.info { background: var(--blue-light); border-color: #BFDBFE; }
+  .insight-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .insight-title { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+  .insight-desc { font-size: 12px; line-height: 1.5; color: var(--gray-600); }
+
+  /* ── DANIEL MORAIS IA ── */
+  .daniel-panel {
+    background: var(--white); border-radius: var(--radius);
+    box-shadow: var(--shadow-lg); overflow: hidden;
+  }
+  .daniel-header {
+    background: linear-gradient(135deg, var(--navy-dark), var(--navy));
+    padding: 20px 24px; display: flex; align-items: center; gap: 14px;
+  }
+  .daniel-avatar {
+    width: 48px; height: 48px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--gold), #e8c97a);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 900; color: var(--navy-dark); flex-shrink: 0;
+  }
+  .daniel-header-info h3 { color: #fff; font-size: 16px; font-weight: 700; }
+  .daniel-header-info p { color: rgba(255,255,255,.6); font-size: 12px; margin-top: 2px; }
+  .daniel-methods {
+    padding: 16px 24px; background: var(--gray-50);
+    border-bottom: 1px solid var(--gray-200);
+    display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+  }
+  .daniel-methods span { font-size: 11px; font-weight: 700; color: var(--gray-600); margin-right: 4px; }
+  .method-chip {
+    padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
+    background: var(--accent-light); color: var(--accent); border: 1px solid #BFDBFE;
+    cursor: pointer; transition: all .15s;
+  }
+  .method-chip:hover { background: var(--accent); color: #fff; }
+  .daniel-chat { height: 340px; overflow-y: auto; padding: 20px 24px; display: flex; flex-direction: column; gap: 12px; }
+  .msg { max-width: 80%; }
+  .msg.user { align-self: flex-end; }
+  .msg.ai { align-self: flex-start; }
+  .msg-bubble {
+    padding: 12px 16px; border-radius: 12px; font-size: 13px; line-height: 1.6;
+  }
+  .msg.user .msg-bubble { background: var(--navy); color: #fff; border-bottom-right-radius: 3px; }
+  .msg.ai .msg-bubble {
+    background: var(--gray-100); color: var(--gray-800); border-bottom-left-radius: 3px;
+    border: 1px solid var(--gray-200);
+  }
+  .msg-name { font-size: 10px; font-weight: 700; color: var(--gray-400); margin-bottom: 4px; text-transform: uppercase; letter-spacing: .5px; }
+  .daniel-input-area {
+    padding: 16px 24px; border-top: 1px solid var(--gray-200);
+    display: flex; gap: 10px;
+  }
+  .daniel-input {
+    flex: 1; padding: 10px 14px; border: 1px solid var(--gray-200);
+    border-radius: 8px; font-size: 13px; resize: none; font-family: inherit;
+    transition: border-color .18s; background: var(--gray-50);
+  }
+  .daniel-input:focus { outline: none; border-color: var(--accent); background: var(--white); }
+  .btn-send {
+    background: var(--navy); color: #fff; border: none; padding: 10px 18px;
+    border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;
+    transition: background .18s; align-self: flex-end; white-space: nowrap;
+  }
+  .btn-send:hover { background: var(--navy-light); }
+  .btn-send:disabled { background: var(--gray-400); cursor: not-allowed; }
+  .typing { display: flex; gap: 4px; align-items: center; padding: 12px 16px; }
+  .typing-dot {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--gray-400);
+    animation: bounce .8s infinite;
+  }
+  .typing-dot:nth-child(2) { animation-delay: .15s; }
+  .typing-dot:nth-child(3) { animation-delay: .3s; }
+  @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+    text-align: center; padding: 60px 20px; color: var(--gray-400);
+  }
+  .empty-state .icon { font-size: 48px; margin-bottom: 16px; }
+  .empty-state h3 { font-size: 16px; font-weight: 700; color: var(--gray-600); margin-bottom: 8px; }
+  .empty-state p { font-size: 13px; line-height: 1.6; }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--white); border-top: 1px solid var(--gray-200);
+    padding: 16px 32px; text-align: center;
+    font-size: 11px; color: var(--gray-400); margin-top: 40px;
+  }
+  footer strong { color: var(--navy); }
+
+  /* ── LOADER ── */
+  .loader {
+    display: inline-block; width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,.3); border-top-color: #fff;
+    border-radius: 50%; animation: spin .6s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    main { padding: 16px; }
+    .kpi-row { grid-template-columns: repeat(2, 1fr); }
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    header { padding: 0 16px; }
+    nav { padding: 0 16px; overflow-x: auto; }
+    .tab { padding: 12px 14px; font-size: 12px; white-space: nowrap; }
+  }
+  /* ── API KEY BAR ── */
+  .api-key-bar { background:linear-gradient(135deg,#0F2244,#1B3A6B); padding:10px 32px; display:flex; align-items:center; gap:12px; border-bottom:1px solid rgba(255,255,255,.08); flex-wrap:wrap; }
+  .api-key-label { font-size:12px; font-weight:700; color:rgba(255,255,255,.7); white-space:nowrap; display:flex; align-items:center; gap:6px; }
+  .api-key-input { flex:1; min-width:260px; padding:7px 14px; background:rgba(0,0,0,.3); border:1px solid rgba(255,255,255,.15); border-radius:6px; color:#fff; font-size:13px; font-family:monospace; transition:border-color .2s; letter-spacing:1px; }
+  .api-key-input:focus { outline:none; border-color:#C9A84C; background:rgba(0,0,0,.5); }
+  .api-key-input::placeholder { color:rgba(255,255,255,.25); letter-spacing:0; font-family:sans-serif; }
+  .api-key-status { font-size:11px; font-weight:700; padding:4px 10px; border-radius:20px; white-space:nowrap; }
+  .api-key-status.ok { background:rgba(5,150,105,.2); color:#34D399; border:1px solid rgba(5,150,105,.3); }
+  .api-key-status.warn { background:rgba(217,119,6,.15); color:#FCD34D; border:1px solid rgba(217,119,6,.3); }
+  .api-key-toggle { background:none; border:none; color:rgba(255,255,255,.4); cursor:pointer; font-size:16px; padding:2px 6px; transition:color .2s; }
+  .api-key-toggle:hover { color:rgba(255,255,255,.8); }
+  .api-key-link { font-size:11px; color:#C9A84C; text-decoration:none; white-space:nowrap; opacity:.8; transition:opacity .2s; }
+  .api-key-link:hover { opacity:1; text-decoration:underline; }
+</style>
+<style>
+  /* ══════════════════════════════════════
+     JARVIS HOLOGRAM STYLES
+  ══════════════════════════════════════ */
+  #page-hologram {
+    background: #020B18;
+    min-height: calc(100vh - 140px);
+    margin: -28px -32px;
+    padding: 0;
+  }
+  .jarvis-container {
+    display: grid;
+    grid-template-columns: 480px 1fr;
+    min-height: calc(100vh - 140px);
+  }
+
+  /* ── LEFT PANEL ── */
+  .jarvis-holo-panel {
+    background: linear-gradient(180deg, #020B18 0%, #041428 100%);
+    border-right: 1px solid #0A3A6B;
+    padding: 20px;
+    display: flex; flex-direction: column; align-items: center; gap: 16px;
+    position: relative; overflow: hidden;
+  }
+  .jarvis-holo-panel::before {
+    content:''; position:absolute; inset:0;
+    background: radial-gradient(ellipse at 50% 40%, rgba(0,120,255,.08) 0%, transparent 70%);
+    pointer-events:none;
+  }
+
+  /* HUD top */
+  .jarvis-hud-top {
+    display:flex; align-items:center; gap:8px; width:100%;
+    font-family: 'Courier New', monospace; font-size:11px;
+    color:#00A8FF; letter-spacing:2px; text-transform:uppercase;
+  }
+  .hud-dot {
+    width:8px; height:8px; border-radius:50%;
+    background:#00FF88; box-shadow:0 0 8px #00FF88;
+    animation: pulse-green 1.5s infinite;
+  }
+  @keyframes pulse-green { 0%,100%{opacity:1;box-shadow:0 0 8px #00FF88} 50%{opacity:.5;box-shadow:0 0 16px #00FF88} }
+
+  /* Hologram stage */
+  .holo-stage {
+    position:relative; width:320px; height:320px;
+    display:flex; align-items:center; justify-content:center;
+  }
+
+  /* Rings */
+  .holo-ring {
+    position:absolute; border-radius:50%;
+    border: 1px solid rgba(0,168,255,.3);
+    animation: spin-ring linear infinite;
+  }
+  .holo-ring-1 { width:300px; height:300px; border-color:rgba(0,168,255,.15); animation-duration:20s; }
+  .holo-ring-2 { width:250px; height:250px; border-color:rgba(0,168,255,.25); animation-duration:15s; animation-direction:reverse;
+    border-style: dashed; }
+  .holo-ring-3 { width:200px; height:200px; border-color:rgba(0,255,136,.2); animation-duration:10s;
+    border-top-color:rgba(0,255,136,.6); border-right-color:rgba(0,255,136,.6); }
+  .holo-ring-4 { width:150px; height:150px; border-color:rgba(0,168,255,.4); animation-duration:7s; animation-direction:reverse;
+    border-top-color:#00A8FF; }
+  @keyframes spin-ring { to { transform:rotate(360deg); } }
+
+  /* Core */
+  .holo-core {
+    position:relative; z-index:5;
+    display:flex; flex-direction:column; align-items:center; gap:8px;
+  }
+  .holo-avatar {
+    width:90px; height:90px; border-radius:50%; position:relative;
+    background: radial-gradient(circle, #0A2A4A 0%, #020B18 100%);
+    border: 2px solid #00A8FF;
+    box-shadow: 0 0 30px rgba(0,168,255,.5), inset 0 0 20px rgba(0,168,255,.1);
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden;
+  }
+  .holo-avatar-inner {
+    font-size:26px; font-weight:900; color:#00A8FF;
+    font-family:'Courier New',monospace; letter-spacing:-2px;
+    text-shadow: 0 0 20px #00A8FF, 0 0 40px #00A8FF;
+    z-index:2; position:relative;
+  }
+  .holo-scan {
+    position:absolute; width:100%; height:3px;
+    background: linear-gradient(90deg, transparent, rgba(0,168,255,.8), transparent);
+    animation: scan 2s linear infinite;
+    top:0;
+  }
+  @keyframes scan { 0%{top:-5px} 100%{top:100%} }
+
+  /* Voice waves */
+  .holo-waves { display:flex; gap:4px; align-items:center; height:30px; }
+  .wave {
+    width:4px; border-radius:2px;
+    background: linear-gradient(180deg, #00A8FF, #00FF88);
+    box-shadow: 0 0 6px #00A8FF;
+    animation: wave-idle 1.2s ease-in-out infinite;
+    height:8px;
+  }
+  .wave:nth-child(1){animation-delay:0s}
+  .wave:nth-child(2){animation-delay:.15s}
+  .wave:nth-child(3){animation-delay:.3s}
+  .wave:nth-child(4){animation-delay:.45s}
+  .wave:nth-child(5){animation-delay:.6s}
+  @keyframes wave-idle { 0%,100%{height:6px;opacity:.4} 50%{height:14px;opacity:.8} }
+  .speaking .wave { animation:wave-speak 0.3s ease-in-out infinite alternate; }
+  .speaking .wave:nth-child(1){animation-delay:0s}
+  .speaking .wave:nth-child(2){animation-delay:.05s}
+  .speaking .wave:nth-child(3){animation-delay:.1s}
+  .speaking .wave:nth-child(4){animation-delay:.05s}
+  .speaking .wave:nth-child(5){animation-delay:0s}
+  @keyframes wave-speak { from{height:6px} to{height:28px} }
+
+  /* Orbit items */
+  .holo-orbit { position:absolute; inset:0; }
+  .orbit-item {
+    position:absolute; font-size:16px;
+    animation: orbit linear infinite;
+    transform-origin: 160px 160px;
+    color:rgba(0,168,255,.7);
+    text-shadow: 0 0 8px #00A8FF;
+  }
+  .orbit-1 { animation-duration:8s;  left:144px; top:10px; }
+  .orbit-2 { animation-duration:12s; left:144px; top:10px; animation-delay:-3s; }
+  .orbit-3 { animation-duration:16s; left:144px; top:10px; animation-delay:-6s; }
+  .orbit-4 { animation-duration:20s; left:144px; top:10px; animation-delay:-10s; }
+  @keyframes orbit { to{transform:rotate(360deg) translateY(-140px) rotate(-360deg)} }
+
+  /* HUD data corners */
+  .hud-data {
+    position:absolute; font-family:'Courier New',monospace;
+    font-size:10px; color:#00A8FF; text-align:center;
+    background: rgba(0,20,50,.6); border:1px solid rgba(0,168,255,.3);
+    padding:4px 8px; border-radius:4px; line-height:1.4;
+    text-transform:uppercase; letter-spacing:1px;
+  }
+  .hud-data span { display:block; font-size:13px; font-weight:700; color:#00FF88; }
+  .hud-tl { top:10px; left:10px; }
+  .hud-tr { top:10px; right:10px; }
+  .hud-bl { bottom:10px; left:10px; }
+  .hud-br { bottom:10px; right:10px; }
+
+  /* Particles */
+  .holo-particles { position:absolute; inset:0; pointer-events:none; }
+  .particle {
+    position:absolute; width:2px; height:2px; border-radius:50%;
+    background:#00A8FF; animation:float-up linear infinite;
+    box-shadow:0 0 4px #00A8FF;
+  }
+  @keyframes float-up { 0%{opacity:0;transform:translateY(0) scale(0)} 20%{opacity:1} 100%{opacity:0;transform:translateY(-200px) scale(1.5)} }
+
+  /* Status bar */
+  .jarvis-status-bar { width:100%; }
+  .status-line {
+    font-family:'Courier New',monospace; font-size:10px; color:#00A8FF;
+    letter-spacing:1px; margin-bottom:6px; min-height:14px;
+    text-overflow:ellipsis; overflow:hidden; white-space:nowrap;
+  }
+  .status-progress { height:2px; background:rgba(0,168,255,.15); border-radius:1px; }
+  .status-progress-fill {
+    height:100%; width:0%; border-radius:1px;
+    background:linear-gradient(90deg,#00A8FF,#00FF88);
+    box-shadow:0 0 6px #00A8FF;
+    transition:width .3s ease;
+  }
+
+  /* Quick commands */
+  .jarvis-quick { width:100%; }
+  .quick-label {
+    font-family:'Courier New',monospace; font-size:10px; color:rgba(0,168,255,.6);
+    letter-spacing:2px; margin-bottom:8px;
+  }
+  .quick-btns { display:flex; flex-wrap:wrap; gap:6px; }
+  .quick-btn {
+    background:rgba(0,168,255,.08); border:1px solid rgba(0,168,255,.25);
+    color:#00A8FF; font-size:11px; padding:5px 10px; border-radius:4px;
+    cursor:pointer; font-family:'Courier New',monospace; letter-spacing:.5px;
+    transition:all .2s;
+  }
+  .quick-btn:hover { background:rgba(0,168,255,.2); border-color:#00A8FF; box-shadow:0 0 10px rgba(0,168,255,.3); }
+
+  /* ── RIGHT PANEL ── */
+  .jarvis-chat-panel {
+    background:#030F1E;
+    display:flex; flex-direction:column;
+  }
+  .jarvis-chat-header {
+    padding:16px 24px; border-bottom:1px solid #0A3A6B;
+    background:linear-gradient(90deg,#020B18,#041428);
+  }
+  .jch-title {
+    font-family:'Courier New',monospace; font-size:13px; font-weight:700;
+    color:#00A8FF; letter-spacing:2px; display:flex; align-items:center; gap:8px;
+  }
+  .jch-dot {
+    width:8px; height:8px; border-radius:50%; background:#00FF88;
+    box-shadow:0 0 8px #00FF88; flex-shrink:0;
+    animation:pulse-green 1.5s infinite;
+  }
+  .jch-subtitle { font-size:11px; color:rgba(0,168,255,.5); letter-spacing:1px; margin-top:4px; font-family:'Courier New',monospace; }
+
+  /* Messages */
+  .jarvis-messages {
+    flex:1; overflow-y:auto; padding:20px;
+    display:flex; flex-direction:column; gap:16px;
+    scrollbar-width:thin; scrollbar-color:#0A3A6B transparent;
+  }
+  .jmsg { display:flex; gap:12px; max-width:90%; }
+  .jmsg-ai { align-self:flex-start; }
+  .jmsg-user { align-self:flex-end; flex-direction:row-reverse; }
+  .jmsg-avatar {
+    width:36px; height:36px; border-radius:50%; flex-shrink:0;
+    background:linear-gradient(135deg,#0A2A4A,#041428);
+    border:1px solid #00A8FF; display:flex; align-items:center; justify-content:center;
+    font-size:11px; font-weight:700; color:#00A8FF; font-family:'Courier New',monospace;
+    box-shadow:0 0 10px rgba(0,168,255,.3);
+  }
+  .jmsg-user .jmsg-avatar { background:rgba(0,168,255,.1); border-color:rgba(0,168,255,.4); color:rgba(0,168,255,.7); }
+  .jmsg-content { flex:1; }
+  .jmsg-name {
+    font-family:'Courier New',monospace; font-size:10px; letter-spacing:1px;
+    color:rgba(0,168,255,.6); margin-bottom:5px;
+  }
+  .jmsg-text {
+    background:rgba(0,20,50,.8); border:1px solid rgba(0,168,255,.2);
+    border-radius:8px; border-top-left-radius:2px;
+    padding:12px 16px; font-size:13px; line-height:1.7;
+    color:#B8D4F0; font-family:'Segoe UI',sans-serif;
+  }
+  .jmsg-user .jmsg-text {
+    background:rgba(0,168,255,.08); border-color:rgba(0,168,255,.3);
+    border-top-right-radius:2px; border-top-left-radius:8px;
+    color:#7ABFFF;
+  }
+  .jchip {
+    display:inline-block; margin:2px; padding:2px 8px;
+    background:rgba(0,168,255,.1); border:1px solid rgba(0,168,255,.3);
+    border-radius:20px; font-size:11px; color:#00A8FF;
+    font-family:'Courier New',monospace;
+  }
+
+  /* Typing */
+  .jtyping { display:flex; gap:5px; align-items:center; padding:8px 0; }
+  .jtyping-dot {
+    width:6px; height:6px; border-radius:50%; background:#00A8FF;
+    box-shadow:0 0 6px #00A8FF; animation:jbounce .8s infinite;
+  }
+  .jtyping-dot:nth-child(2){animation-delay:.15s}
+  .jtyping-dot:nth-child(3){animation-delay:.3s}
+  @keyframes jbounce{0%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
+
+  /* Input zone */
+  .jarvis-input-zone {
+    padding:16px 20px; border-top:1px solid #0A3A6B;
+    display:flex; gap:10px; align-items:flex-end;
+    background:rgba(2,11,24,.8);
+  }
+  .mic-btn {
+    width:44px; height:44px; border-radius:50%; border:1px solid rgba(0,168,255,.4);
+    background:rgba(0,168,255,.08); color:#00A8FF; font-size:18px;
+    cursor:pointer; flex-shrink:0; transition:all .2s;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .mic-btn:hover { background:rgba(0,168,255,.2); box-shadow:0 0 15px rgba(0,168,255,.3); }
+  .mic-btn.listening { background:rgba(220,38,38,.15); border-color:#DC2626; animation:mic-pulse 1s infinite; }
+  @keyframes mic-pulse { 0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,.4)} 50%{box-shadow:0 0 0 8px rgba(220,38,38,0)} }
+  .jarvis-input-wrap { flex:1; }
+  .jarvis-input {
+    width:100%; background:rgba(0,20,50,.6); border:1px solid rgba(0,168,255,.25);
+    border-radius:8px; padding:10px 14px; color:#B8D4F0; font-size:13px;
+    font-family:'Segoe UI',sans-serif; resize:none; transition:border-color .2s;
+  }
+  .jarvis-input:focus { outline:none; border-color:#00A8FF; box-shadow:0 0 10px rgba(0,168,255,.15); }
+  .jarvis-input::placeholder { color:rgba(0,168,255,.3); }
+  .jarvis-send-btn {
+    background:linear-gradient(135deg,#0050A0,#0078D4);
+    border:1px solid #00A8FF; color:#fff; padding:10px 18px;
+    border-radius:8px; cursor:pointer; font-family:'Courier New',monospace;
+    font-size:12px; font-weight:700; letter-spacing:1px; flex-shrink:0;
+    transition:all .2s; box-shadow:0 0 10px rgba(0,168,255,.2);
+    align-self:flex-end;
+  }
+  .jarvis-send-btn:hover { box-shadow:0 0 20px rgba(0,168,255,.4); transform:translateY(-1px); }
+  .jarvis-send-btn:disabled { opacity:.4; cursor:not-allowed; transform:none; }
+
+  .voice-status {
+    padding:0 20px 4px; font-family:'Courier New',monospace;
+    font-size:10px; color:#00FF88; letter-spacing:1px; min-height:16px;
+  }
+  .speaker-toggle {
+    padding:8px 20px 12px; display:flex; align-items:center; gap:12px;
+    background:rgba(2,11,24,.8);
+  }
+  .toggle-label { display:flex; align-items:center; gap:8px; cursor:pointer; }
+  .toggle-track {
+    width:34px; height:18px; border-radius:9px; background:#0A3A6B;
+    border:1px solid rgba(0,168,255,.3); position:relative; transition:.2s;
+    flex-shrink:0;
+  }
+  .toggle-track::after {
+    content:''; position:absolute; width:12px; height:12px;
+    border-radius:50%; background:#00A8FF; top:2px; left:2px; transition:.2s;
+  }
+  input[type=checkbox]:checked + .toggle-track { background:rgba(0,168,255,.2); border-color:#00A8FF; }
+  input[type=checkbox]:checked + .toggle-track::after { left:18px; }
+  input[type=checkbox] { display:none; }
+  .toggle-text { font-family:'Courier New',monospace; font-size:10px; color:rgba(0,168,255,.7); letter-spacing:1px; }
+  .stop-btn {
+    background:rgba(220,38,38,.1); border:1px solid rgba(220,38,38,.4);
+    color:#DC2626; padding:4px 12px; border-radius:4px; cursor:pointer;
+    font-family:'Courier New',monospace; font-size:10px; letter-spacing:1px;
+    transition:all .2s;
+  }
+  .stop-btn:hover { background:rgba(220,38,38,.2); }
+
+  @media(max-width:900px){
+    .jarvis-container{grid-template-columns:1fr;}
+    .jarvis-holo-panel{display:none;}
+  }
+  .voice-option-btn {
+    background:rgba(0,20,50,.8); border:1px solid rgba(0,168,255,.2);
+    border-radius:6px; padding:10px 14px; cursor:pointer;
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    transition:all .2s; width:100%;
+  }
+  .voice-option-btn:hover { background:rgba(0,168,255,.12); border-color:#00A8FF; }
+  .voice-option-btn.selected { background:rgba(0,168,255,.15); border-color:#00FF88; }
+  .voice-name { font-family:'Courier New',monospace; font-size:12px; color:#B8D4F0; }
+  .voice-lang { font-size:10px; color:rgba(0,168,255,.5); font-family:'Courier New',monospace; }
+  .voice-test-btn { background:rgba(0,168,255,.1); border:1px solid rgba(0,168,255,.3); color:#00A8FF; padding:3px 10px; border-radius:4px; font-size:10px; cursor:pointer; font-family:'Courier New',monospace; flex-shrink:0; }
+  .voice-test-btn:hover { background:rgba(0,168,255,.25); }
+</style>
+</head>
+<body>
+
+<!-- API KEY BAR -->
+
+<!-- API KEY BAR -->
+<div class="api-key-bar">
+  <span class="api-key-label">🔑 Anthropic:</span>
+  <input type="password" class="api-key-input" id="apiKeyInput"
+    placeholder="sk-ant-api03-..."
+    oninput="updateApiKeyStatus()"
+    onchange="saveApiKey()">
+  <button class="api-key-toggle" onclick="toggleApiKeyVisibility()" title="Mostrar/ocultar">👁</button>
+  <span class="api-key-status warn" id="apiKeyStatus">⚠ Não configurada</span>
+  <button onclick="testApiConnection()" style="background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.4);color:#C9A84C;padding:4px 10px;border-radius:5px;cursor:pointer;font-size:11px;font-weight:700;white-space:nowrap;transition:all .2s">🔌 Testar</button>
+  <span style="width:1px;background:rgba(255,255,255,.1);height:24px;flex-shrink:0"></span>
+  <span class="api-key-label">🎙 ElevenLabs:</span>
+  <input type="password" class="api-key-input" id="elevenLabsKeyInput"
+    placeholder="sk_..."
+    value="sk_5b62ef80fbb0d906e9edfbab86848a98e0bf0baae02a430c"
+    oninput="updateElevenLabsStatus()"
+    onchange="saveElevenLabsKey()" style="max-width:200px">
+  <button class="api-key-toggle" onclick="toggleElevenLabsVisibility()" title="Mostrar/ocultar">👁</button>
+  <span class="api-key-status warn" id="elevenLabsStatus">⚠ Não configurada</span>
+  <a href="https://elevenlabs.io" target="_blank" class="api-key-link">ElevenLabs →</a>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="header-brand">
+    <div class="brand-icon">CC</div>
+    <div class="brand-text">
+      <h1>O Código da Confiabilidade</h1>
+      <p>Painel de Gestão de Confiabilidade · Daniel Morais</p>
+    </div>
+  </div>
+  <div class="header-actions">
+    <a href="https://clubedeautores.com.br/livro/o-codigo-da-confiabilidade" target="_blank" class="btn-header btn-book">📖 Conheça o Livro</a>
+    <a href="https://www.rccertificate.com/danielcosmedepaulamorais" target="_blank" class="btn-header btn-author">👤 Conheça o Autor</a>
+  </div>
+</header>
+
+<!-- NAV -->
+<nav>
+  <button class="tab active" onclick="switchPage('visao-geral')">📊 Visão Geral</button>
+  <button class="tab" onclick="switchPage('analise-mtbf')">📈 Análise de MTBF</button>
+  <button class="tab" onclick="switchPage('estrategia')">🧠 Análise Estratégica</button>
+  <button class="tab" onclick="switchPage('daniel')">🤖 Daniel Morais IA</button>
+  <button class="tab" onclick="switchPage('hologram')">🔷 JARVIS – Holograma</button>
+</nav>
+
+<!-- MAIN -->
+<main>
+
+  <!-- UPLOAD CARD (global) -->
+  <div class="upload-card" id="uploadCard">
+    <div class="upload-info">
+      <h3>📂 Carregar Dados</h3>
+      <p>Importe a planilha exportada do SAP com as ordens de manutenção. Abas: <strong>Ordens</strong> e <strong>Operative Time</strong>.</p>
+    </div>
+    <div class="upload-actions">
+      <button class="btn-download-template" onclick="downloadTemplate()">⬇️ Baixar Modelo</button>
+      <button class="btn-upload" onclick="document.getElementById('fileInput').click()">
+        ⬆️ Importar Planilha
+      </button>
+      <input type="file" id="fileInput" accept=".xlsx,.xls" style="display:none" onchange="loadFile(event)">
+      <span class="status-badge status-wait" id="statusBadge">⏳ Aguardando arquivo</span>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       PAGE 1: VISÃO GERAL
+  ══════════════════════════════════ -->
+  <div class="page active" id="page-visao-geral">
+
+    <!-- KPIs -->
+    <div class="kpi-row" id="kpiRow">
+      <div class="kpi-card"><div class="kpi-label">Total de Ordens</div><div class="kpi-value" id="kpiTotal">–</div><div class="kpi-sub">carregadas</div></div>
+      <div class="kpi-card kpi-red"><div class="kpi-label">Ordens Emergência</div><div class="kpi-value" id="kpiEmerg">–</div><div class="kpi-sub">Prioridade 1</div></div>
+      <div class="kpi-card kpi-green"><div class="kpi-label">MTBF Médio Geral</div><div class="kpi-value" id="kpiMTBF">–</div><div class="kpi-sub">horas</div></div>
+      <div class="kpi-card kpi-yellow"><div class="kpi-label">Ativos Monitorados</div><div class="kpi-value" id="kpiAtivos">–</div><div class="kpi-sub">localizações funcionais</div></div>
+      <div class="kpi-card kpi-gold"><div class="kpi-label">% Manutenção Proativa</div><div class="kpi-value" id="kpiProativa">–</div><div class="kpi-sub">AR40 + AR50</div></div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters">
+      <div class="filter-group">
+        <label>Setor</label>
+        <select id="filterSetor" onchange="applyFilters()"><option value="">Todos os Setores</option></select>
+      </div>
+      <div class="filter-group">
+        <label>Período – Início</label>
+        <input type="date" id="filterStart" onchange="applyFilters()">
+      </div>
+      <div class="filter-group">
+        <label>Período – Fim</label>
+        <input type="date" id="filterEnd" onchange="applyFilters()">
+      </div>
+      <div class="filter-group">
+        <label>Tipo de Ordem</label>
+        <select id="filterTipo" onchange="applyFilters()">
+          <option value="">Todos</option>
+          <option value="AR30">AR30 – Corretiva</option>
+          <option value="AR40">AR40 – Corretiva Preventiva</option>
+          <option value="AR50">AR50 – Corretiva Preditiva</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Quadrant + Ranking -->
+    <div class="grid-2">
+      <div class="chart-card">
+        <div class="card-header">
+          <div class="card-title">🎯 Mapa de Quadrantes – MTBF vs Criticidade</div>
+        </div>
+        <div class="quadrant-wrap">
+          <div class="quad-label q-tl">⚠️ ATENÇÃO</div>
+          <div class="quad-label q-tr">✅ REFERÊNCIA</div>
+          <div class="quad-label q-bl">🔴 CRÍTICO</div>
+          <div class="quad-label q-br">🔵 ESTÁVEL</div>
+          <canvas id="quadrantChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="card-header">
+          <div class="card-title">🏆 Ranking de Ativos por MTBF</div>
+          <span class="card-badge" id="rankingSetor">Todos os Setores</span>
+        </div>
+        <div style="overflow-y:auto; max-height:380px;">
+          <table class="ranking-table" id="rankingTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Ativo</th>
+                <th>Setor</th>
+                <th>MTBF (h)</th>
+                <th>Falhas</th>
+              </tr>
+            </thead>
+            <tbody id="rankingBody">
+              <tr><td colspan="5"><div class="empty-state"><div class="icon">📋</div><p>Importe a planilha para visualizar o ranking</p></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order type chart -->
+    <div class="grid-2">
+      <div class="chart-card">
+        <div class="card-header"><div class="card-title">📋 Distribuição por Tipo de Ordem</div></div>
+        <div class="chart-wrap"><canvas id="tipoOrdemChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="card-header"><div class="card-title">🚨 Distribuição por Prioridade</div></div>
+        <div class="chart-wrap"><canvas id="prioridadeChart"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       PAGE 2: ANÁLISE DE MTBF
+  ══════════════════════════════════ -->
+  <div class="page" id="page-analise-mtbf">
+    <div class="filters">
+      <div class="filter-group">
+        <label>Equipamento (Loc. Funcional)</label>
+        <select id="filterEquip"><option value="">Selecione um equipamento</option></select>
+      </div>
+      <div class="filter-group">
+        <label>Período – Início</label>
+        <input type="date" id="mtbfStart">
+      </div>
+      <div class="filter-group">
+        <label>Período – Fim</label>
+        <input type="date" id="mtbfEnd">
+      </div>
+      <button class="btn-apply" onclick="renderMTBFAnalysis()">Analisar</button>
+    </div>
+
+    <div class="kpi-row" style="grid-template-columns: repeat(4,1fr)">
+      <div class="kpi-card"><div class="kpi-label">MTBF Total</div><div class="kpi-value" id="mtbfTotal">–</div><div class="kpi-sub">horas</div></div>
+      <div class="kpi-card kpi-red"><div class="kpi-label">MTBF AR30 (Corretiva)</div><div class="kpi-value" id="mtbfAR30">–</div><div class="kpi-sub">horas</div></div>
+      <div class="kpi-card kpi-yellow"><div class="kpi-label">MTBF AR40 (Prev.)</div><div class="kpi-value" id="mtbfAR40">–</div><div class="kpi-sub">horas</div></div>
+      <div class="kpi-card kpi-green"><div class="kpi-label">MTBF AR50 (Predic.)</div><div class="kpi-value" id="mtbfAR50">–</div><div class="kpi-sub">horas</div></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="chart-card">
+        <div class="card-header">
+          <div class="card-title">📈 Evolução do MTBF por Mês</div>
+          <span id="trendBadge" class="status-badge">–</span>
+        </div>
+        <div class="chart-wrap tall"><canvas id="mtbfEvolutionChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="card-header"><div class="card-title">🔍 MTBF por Tipo de Ordem – Evolução</div></div>
+        <div class="chart-wrap tall"><canvas id="mtbfByTypeChart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="chart-card full">
+      <div class="card-header"><div class="card-title">📅 Histórico de Falhas – Linha do Tempo</div></div>
+      <div class="chart-wrap"><canvas id="timelineChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       PAGE 3: ANÁLISE ESTRATÉGICA
+  ══════════════════════════════════ -->
+  <div class="page" id="page-estrategia">
+    <div class="filters">
+      <div class="filter-group">
+        <label>Setor</label>
+        <select id="estratSetor"><option value="">Todos</option></select>
+      </div>
+      <div class="filter-group">
+        <label>Período – Início</label>
+        <input type="date" id="estratStart">
+      </div>
+      <div class="filter-group">
+        <label>Período – Fim</label>
+        <input type="date" id="estratEnd">
+      </div>
+      <button class="btn-apply" onclick="renderEstrategia()">Atualizar</button>
+    </div>
+
+    <!-- Diagnóstico automático -->
+    <div class="chart-card" style="margin-bottom:20px">
+      <div class="card-header"><div class="card-title">🧠 Diagnóstico Automático de Estratégia</div></div>
+      <div class="insight-list" id="insightList">
+        <div class="empty-state"><div class="icon">🧠</div><p>Importe a planilha para gerar o diagnóstico automático</p></div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="chart-card">
+        <div class="card-header"><div class="card-title">📊 Composição de Ordens por Mês</div></div>
+        <div class="chart-wrap tall"><canvas id="estratOrdemChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="card-header"><div class="card-title">🚨 MTBF Emergencial (P1) vs MTBF Total</div></div>
+        <div class="chart-wrap tall"><canvas id="estratMTBFChart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="card-header"><div class="card-title">📉 Tendência Estratégica – Proativo vs Reativo</div></div>
+      <div class="chart-wrap"><canvas id="tendenciaChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       PAGE 4: DANIEL MORAIS IA
+  ══════════════════════════════════ -->
+  <div class="page" id="page-daniel">
+    <div class="daniel-panel">
+      <div class="daniel-header">
+        <div class="daniel-avatar">DM</div>
+        <div class="daniel-header-info">
+          <h3>Daniel Morais – Especialista em Confiabilidade</h3>
+          <p>IA treinada em métodos de confiabilidade industrial · RCM · Weibull · RCA · FMEA</p>
+        </div>
+      </div>
+      <div class="daniel-methods">
+        <span>Pergunte sobre:</span>
+        <span class="method-chip" onclick="askMethod('Qual distribuição Weibull devo usar para este ativo?')">Weibull</span>
+        <span class="method-chip" onclick="askMethod('Como conduzir uma RCA para este equipamento?')">RCA</span>
+        <span class="method-chip" onclick="askMethod('Quais são os principais modos de falha que devo investigar?')">Modos de Falha</span>
+        <span class="method-chip" onclick="askMethod('Como montar um Pareto de falhas para priorização?')">Pareto</span>
+        <span class="method-chip" onclick="askMethod('Como interpretar minha curva MTBF atual e o que ela indica sobre minha estratégia?')">Curva MTBF</span>
+        <span class="method-chip" onclick="askMethod('Qual plano de manutenção preditiva é mais indicado para este ativo?')">Manutenção Preditiva</span>
+        <span class="method-chip" onclick="askMethod('Como avaliar se minha estratégia de manutenção está melhorando?')">Estratégia</span>
+        <span class="method-chip" onclick="askMethod('O que é a curva da banheira e como ela se aplica ao meu ativo?')">Curva da Banheira</span>
+      </div>
+      <div class="daniel-chat" id="danielChat">
+        <div class="msg ai">
+          <div class="msg-name">Daniel Morais IA</div>
+          <div class="msg-bubble">
+            Olá! Sou o especialista em confiabilidade Daniel Morais. Estou aqui para ajudá-lo a analisar seus dados de manutenção e desenvolver estratégias de confiabilidade eficazes.<br><br>
+            Posso ajudá-lo com análises de <strong>Weibull</strong>, <strong>RCA</strong>, <strong>FMEA</strong>, interpretação de curvas MTBF, e muito mais. Se você já carregou sua planilha, posso analisar os dados e trazer insights específicos para seus ativos.<br><br>
+            Como posso ajudá-lo hoje?
+          </div>
+        </div>
+      </div>
+      <div class="daniel-input-area">
+        <textarea class="daniel-input" id="danielInput" rows="2" placeholder="Faça uma pergunta técnica sobre confiabilidade, seus ativos ou estratégia de manutenção..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendToDaniel();}"></textarea>
+        <button class="btn-send" id="sendBtn" onclick="sendToDaniel()">Enviar ➤</button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+  <!-- ══════════════════════════════════
+       PAGE 5: JARVIS HOLOGRAM
+  ══════════════════════════════════ -->
+  <div class="page" id="page-hologram">
+    <div class="jarvis-container">
+
+      <!-- LEFT: Hologram -->
+      <div class="jarvis-holo-panel">
+        <div class="jarvis-hud-top">
+          <span class="hud-label">SISTEMA ATIVO</span>
+          <span class="hud-dot"></span>
+          <span class="hud-label" id="hudStatus">AGUARDANDO COMANDO</span>
+        </div>
+
+        <!-- Hologram core -->
+        <div class="holo-stage">
+          <div class="holo-ring holo-ring-1"></div>
+          <div class="holo-ring holo-ring-2"></div>
+          <div class="holo-ring holo-ring-3"></div>
+          <div class="holo-ring holo-ring-4"></div>
+          <div class="holo-particles" id="holoParticles"></div>
+          <div class="holo-core" id="holoCore">
+            <div class="holo-avatar">
+              <div class="holo-avatar-inner">DM</div>
+              <div class="holo-scan"></div>
+            </div>
+            <div class="holo-waves" id="holoWaves">
+              <div class="wave"></div><div class="wave"></div><div class="wave"></div>
+              <div class="wave"></div><div class="wave"></div>
+            </div>
+          </div>
+          <div class="holo-orbit">
+            <div class="orbit-item orbit-1">⚙</div>
+            <div class="orbit-item orbit-2">📊</div>
+            <div class="orbit-item orbit-3">🔬</div>
+            <div class="orbit-item orbit-4">📈</div>
+          </div>
+          <!-- Data HUD around hologram -->
+          <div class="hud-data hud-tl" id="hudTL">MTBF<br><span id="hudMTBF">–</span></div>
+          <div class="hud-data hud-tr" id="hudTR">ORDENS<br><span id="hudOrdens">–</span></div>
+          <div class="hud-data hud-bl" id="hudBL">ATIVOS<br><span id="hudAtivos">–</span></div>
+          <div class="hud-data hud-br" id="hudBR">PROAT.<br><span id="hudProat">–</span></div>
+        </div>
+
+        <!-- Status bar -->
+        <div class="jarvis-status-bar">
+          <div class="status-line" id="statusLine">Inicializando Daniel Morais IA...</div>
+          <div class="status-progress"><div class="status-progress-fill" id="statusFill"></div></div>
+        </div>
+
+        <!-- Quick commands -->
+        <div class="jarvis-quick">
+          <div class="quick-label">COMANDOS RÁPIDOS</div>
+          <div class="quick-btns">
+            <button class="quick-btn" onclick="jarvisAsk('Faça um diagnóstico completo da minha estratégia de manutenção com base nos dados carregados.')">Diagnóstico Geral</button>
+            <button class="quick-btn" onclick="jarvisAsk('Quais ativos precisam de atenção imediata baseado no MTBF e emergências?')">Ativos Críticos</button>
+            <button class="quick-btn" onclick="jarvisAsk('Explique como aplicar análise de Weibull nos meus dados e qual beta indica.')">Análise Weibull</button>
+            <button class="quick-btn" onclick="jarvisAsk('Como está minha manutenção proativa vs reativa? O que precisa melhorar?')">Proativo vs Reativo</button>
+            <button class="quick-btn" onclick="jarvisAsk('Sugira um plano de RCA para os equipamentos com maior índice de emergências.')">Plano RCA</button>
+            <button class="quick-btn" onclick="jarvisAsk('Como aplicar Lean Manutenção e eliminar desperdícios no meu processo atual?')">Lean Manutenção</button>
+            <button class="quick-btn" onclick="jarvisAsk('Construa um Pareto de falhas com os dados carregados e indique as causas raiz prioritárias.')">Pareto de Falhas</button>
+            <button class="quick-btn" onclick="jarvisAsk('Como calcular a disponibilidade e confiabilidade dos meus ativos críticos?')">Disponibilidade</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Chat Interface -->
+      <div class="jarvis-chat-panel">
+        <div class="jarvis-chat-header">
+          <div class="jch-title">
+            <span class="jch-dot"></span>
+            DANIEL MORAIS — ESPECIALISTA EM CONFIABILIDADE
+          </div>
+          <div class="jch-subtitle">Engenharia de Confiabilidade · Gestão de Ativos · Lean · Melhoria Contínua</div>
+        </div>
+
+        <div class="jarvis-messages" id="jarvisMessages">
+          <!-- Greeting inserted dynamically by jarvisGreeting() -->
+        </div>
+
+        <!-- Voice + Input -->
+        <div class="jarvis-input-zone">
+          <button class="mic-btn" id="micBtn" onclick="toggleVoice()" title="Falar com Daniel">🎤</button>
+          <div class="jarvis-input-wrap">
+            <textarea class="jarvis-input" id="jarvisInput" rows="2"
+              placeholder="Digite ou fale sua pergunta para o especialista Daniel Morais..."
+              onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();jarvisSend();}"></textarea>
+          </div>
+          <button class="jarvis-send-btn" id="jarvisSendBtn" onclick="jarvisSend()">
+            <span>ENVIAR</span>
+          </button>
+        </div>
+        <div class="voice-status" id="voiceStatus"></div>
+
+        <!-- Speaker toggle -->
+        <div class="speaker-toggle">
+          <label class="toggle-label">
+            <input type="checkbox" id="speakerToggle" checked>
+            <span class="toggle-track"></span>
+            <span class="toggle-text">🔊 Voz ativada</span>
+          </label>
+          <button class="stop-btn" id="stopSpeakBtn" onclick="stopSpeaking()" style="display:none">⏹ Parar Voz</button>
+          <button onclick="openVoiceSelector()" style="background:rgba(0,168,255,.08);border:1px solid rgba(0,168,255,.25);color:#00A8FF;padding:4px 12px;border-radius:4px;cursor:pointer;font-family:'Courier New',monospace;font-size:10px;letter-spacing:.5px;transition:all .2s;margin-left:4px" onmouseover="this.style.background='rgba(0,168,255,.2)'" onmouseout="this.style.background='rgba(0,168,255,.08)'">🎙 Selecionar Voz</button>
+        </div>
+
+        <!-- Voice Selector Modal -->
+        <div id="voiceSelectorModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;align-items:center;justify-content:center;">
+          <div style="background:#020B18;border:1px solid #00A8FF;border-radius:12px;padding:28px;max-width:480px;width:90%;box-shadow:0 0 40px rgba(0,168,255,.3);">
+            <div style="font-family:'Courier New',monospace;font-size:14px;font-weight:700;color:#00A8FF;letter-spacing:2px;margin-bottom:6px;">🎙 SELECIONAR VOZ DO JARVIS</div>
+            <div style="font-size:11px;color:rgba(0,168,255,.5);font-family:'Courier New',monospace;margin-bottom:16px;letter-spacing:1px;">Escolha a voz mais grave e masculina disponível</div>
+            <div id="voiceList" style="display:flex;flex-direction:column;gap:6px;max-height:300px;overflow-y:auto;margin-bottom:16px;"></div>
+            <div style="display:flex;gap:10px;justify-content:flex-end;">
+              <button onclick="closeVoiceSelector()" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.5);padding:8px 18px;border-radius:6px;cursor:pointer;font-family:'Courier New',monospace;font-size:11px;">CANCELAR</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+<footer>
+  <strong>O Código da Confiabilidade</strong> · Desenvolvido por <strong>Daniel Morais</strong> · Gestão de Confiabilidade Industrial
+</footer>
+
+<script>
+// ══════════════════════════════════════════
+// GLOBAL STATE
+// ══════════════════════════════════════════
+let rawData = [];
+let operativeTime = {};
+let charts = {};
+
+// ══════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════
+let hologramGreeted = false;
+
+function switchPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  event.target.classList.add('active');
+
+  // Trigger JARVIS greeting first time hologram tab is opened
+  if (page === 'hologram' && !hologramGreeted) {
+    hologramGreeted = true;
+    const toggle = document.getElementById('speakerToggle');
+    if (toggle && toggle.checked) {
+      setTimeout(() => jarvisGreeting(), 600);
+    } else {
+      // Show message even without audio
+      setTimeout(() => addJarvisMessage('ai', 'Olá, eu sou o **JARVIS**. Seu especialista de confiabilidade.\n\nFui criado pelo **Daniel Morais**, para ajudar os gestores nas tarefas que agregam valor.\n\nChegou a hora de transformar a **confiabilidade em resultado**.\n\nQual a missão para hoje?'), 400);
+    }
+  }
+}
+
+// ══════════════════════════════════════════
+// FILE LOADING
+// ══════════════════════════════════════════
+
+// Normalize column name: trim spaces, normalize unicode
+function normCol(str) {
+  return (str || '').toString().trim().normalize('NFC');
+}
+
+// Get value from row by partial or full column name match
+function getVal(row, ...names) {
+  for (const name of names) {
+    for (const key of Object.keys(row)) {
+      if (normCol(key) === normCol(name) || normCol(key).includes(normCol(name))) {
+        return row[key];
+      }
+    }
+  }
+  return undefined;
+}
+
+// Normalize a data row to standard field names
+function normalizeRow(row) {
+  return {
+    'Número da Ordem':       getVal(row, 'Número da Ordem', 'Numero da Ordem', 'Ordem', 'Nr.Ordem', 'Nº Ordem') || '',
+    'Data do Incidente':     getVal(row, 'Data do Incidente', 'Data Incidente', 'Data', 'Dt.Incidente') || '',
+    'Localização Funcional': getVal(row, 'Localização Funcional', 'Localizacao Funcional', 'Loc. Funcional', 'LocFuncional', 'Local') || '',
+    'Setor':                 getVal(row, 'Setor', 'Área', 'Area', 'Departamento') || '',
+    'Duração da Parada (h)': getVal(row, 'Duração da Parada (h)', 'Duracao da Parada', 'Duração', 'Dur.Parada', 'Downtime') || 0,
+    'Tempo de Operação (h)': getVal(row, 'Tempo de Operação (h)', 'Tempo de Operacao', 'Tempo Operacao', 'Op.Time') || 0,
+    'Tipo de Ordem':         getVal(row, 'Tipo de Ordem', 'Tipo Ordem', 'TipoOrdem', 'Tipo') || '',
+    'Prioridade':            getVal(row, 'Prioridade', 'Prior', 'Prioridade') || '',
+    'Descrição':             getVal(row, 'Descrição', 'Descricao', 'Desc', 'Texto Breve') || '',
+  };
+}
+
+function loadFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  document.getElementById('statusBadge').className = 'status-badge status-wait';
+  document.getElementById('statusBadge').textContent = '⏳ Lendo arquivo...';
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const wb = XLSX.read(e.target.result, { type: 'array', cellDates: false });
+
+      // ── Aba Ordens ──
+      const wsName = wb.SheetNames.find(n => n.toLowerCase().includes('ordem') || n.toLowerCase().includes('ordens')) || wb.SheetNames[0];
+      const ws = wb.Sheets[wsName];
+      const rawRows = XLSX.utils.sheet_to_json(ws, { raw: true, defval: '' });
+
+      // ── Aba Operative Time ──
+      operativeTime = {};
+      const wsOTName = wb.SheetNames.find(n => n.toLowerCase().includes('operative') || n.toLowerCase().includes('operativ')) || wb.SheetNames[1];
+      const wsOT = wsOTName ? wb.Sheets[wsOTName] : null;
+      if (wsOT) {
+        const otRows = XLSX.utils.sheet_to_json(wsOT, { raw: true, defval: 0 });
+        otRows.forEach(row => {
+          const sector = normCol(String(getVal(row, 'Setor') || ''));
+          if (!sector) return;
+          if (!operativeTime[sector]) operativeTime[sector] = {};
+          Object.entries(row).forEach(([key, val]) => {
+            if (normCol(key) === 'Setor') return;
+            const match = normCol(key).match(/^([A-Za-z]{3})\/(\d{4})$/);
+            if (match) {
+              const monthMap = {Jan:1,Fev:2,Mar:3,Abr:4,Mai:5,Jun:6,Jul:7,Ago:8,Set:9,Out:10,Nov:11,Dez:12,
+                                jan:1,fev:2,mar:3,abr:4,mai:5,jun:6,jul:7,ago:8,set:9,out:10,nov:11,dez:12};
+              const monthNum = monthMap[match[1]];
+              if (monthNum) {
+                const periodKey = `${match[2]}-${String(monthNum).padStart(2,'0')}`;
+                operativeTime[sector][periodKey] = parseFloat(val) || 0;
+              }
+            }
+          });
+        });
+      }
+
+      // Normalize all rows
+      const normalized = rawRows.map(normalizeRow).filter(r => r['Localização Funcional']);
+      rawData = normalized;
+
+      if (rawData.length === 0) {
+        document.getElementById('statusBadge').className = 'status-badge';
+        document.getElementById('statusBadge').style.background = '#FEF2F2';
+        document.getElementById('statusBadge').style.color = '#DC2626';
+        document.getElementById('statusBadge').textContent = '❌ Nenhuma ordem encontrada';
+        alert('Nenhuma ordem encontrada. Verifique se a aba se chama "Ordens" e se a coluna "Localização Funcional" está preenchida.');
+        return;
+      }
+
+      processData();
+      document.getElementById('statusBadge').className = 'status-badge status-ok';
+      document.getElementById('statusBadge').textContent = '✅ ' + rawData.length + ' ordens carregadas';
+    } catch(err) {
+      document.getElementById('statusBadge').className = 'status-badge';
+      document.getElementById('statusBadge').style.cssText = 'background:#FEF2F2;color:#DC2626';
+      document.getElementById('statusBadge').textContent = '❌ Erro ao ler arquivo';
+      alert('Erro ao ler o arquivo:\n' + err.message + '\n\nVerifique se o arquivo segue o modelo fornecido.');
+      console.error(err);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function parseDate(val) {
+  if (!val) return null;
+  // Already a Date
+  if (val instanceof Date) return isNaN(val) ? null : val;
+  // Excel serial number (number)
+  if (typeof val === 'number') {
+    // Excel date serial: days since 1900-01-01 (with leap year bug)
+    const excelEpoch = new Date(1899, 11, 30);
+    const d = new Date(excelEpoch.getTime() + val * 86400000);
+    return isNaN(d) ? null : d;
+  }
+  const str = String(val).trim();
+  if (!str) return null;
+  // dd/mm/yyyy
+  const dmy = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (dmy) return new Date(parseInt(dmy[3]), parseInt(dmy[2])-1, parseInt(dmy[1]));
+  // yyyy-mm-dd
+  const ymd = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (ymd) return new Date(parseInt(ymd[1]), parseInt(ymd[2])-1, parseInt(ymd[3]));
+  // dd-mm-yyyy
+  const dmy2 = str.match(/^(\d{1,2})-(\d{1,2})-(\d{4})$/);
+  if (dmy2) return new Date(parseInt(dmy2[3]), parseInt(dmy2[2])-1, parseInt(dmy2[1]));
+  const d = new Date(str);
+  return isNaN(d) ? null : d;
+}
+
+// ══════════════════════════════════════════
+// PROCESS & CALC MTBF
+// ══════════════════════════════════════════
+function processData() {
+  // Populate filters
+  const sectors = [...new Set(rawData.map(r => r['Setor']).filter(Boolean))].sort();
+  ['filterSetor','estratSetor'].forEach(id => {
+    const sel = document.getElementById(id);
+    sel.innerHTML = '<option value="">Todos os Setores</option>';
+    sectors.forEach(s => sel.innerHTML += `<option value="${s}">${s}</option>`);
+  });
+
+  const equips = [...new Set(rawData.map(r => r['Localização Funcional']).filter(Boolean))].sort();
+  const selEquip = document.getElementById('filterEquip');
+  selEquip.innerHTML = '<option value="">Selecione um equipamento</option>';
+  equips.forEach(e => selEquip.innerHTML += `<option value="${e}">${e}</option>`);
+
+  // Set date defaults
+  const dates = rawData.map(r => parseDate(r['Data do Incidente'])).filter(Boolean).sort((a,b) => a-b);
+  if (dates.length) {
+    const fmt = d => d.toISOString().split('T')[0];
+    ['filterStart','mtbfStart','estratStart'].forEach(id => document.getElementById(id).value = fmt(dates[0]));
+    ['filterEnd','mtbfEnd','estratEnd'].forEach(id => document.getElementById(id).value = fmt(dates[dates.length-1]));
+  }
+
+  applyFilters();
+  renderEstrategia();
+}
+
+function calcMTBF(orders) {
+  if (!orders.length) return 0;
+  const hasOpTime = orders.some(r => parseFloat(r["Tempo de Operação (h)"] || r["Tempo de Operação"]) > 0);
+  if (hasOpTime) {
+    const totalOp = orders.reduce((sum, r) => sum + (parseFloat(r["Tempo de Operação (h)"] || r["Tempo de Operação"]) || 0), 0);
+    return totalOp / orders.length;
+  }
+  let totalOp = 0;
+  const periodsUsed = new Set();
+  orders.forEach(r => {
+    const d = parseDate(r["Data do Incidente"]);
+    const sector = r["Setor"];
+    if (!d || !sector) return;
+    const periodKey = d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0");
+    const key = sector + "||" + periodKey;
+    if (!periodsUsed.has(key)) {
+      periodsUsed.add(key);
+      totalOp += (operativeTime[sector] && operativeTime[sector][periodKey]) ? operativeTime[sector][periodKey] : 0;
+    }
+  });
+  return orders.length > 0 ? (totalOp / orders.length) : 0;
+}
+
+function getFilteredData(sector, start, end, tipo) {
+  return rawData.filter(r => {
+    const d = parseDate(r['Data do Incidente']);
+    const s = start ? new Date(start) : null;
+    const e = end ? new Date(end) : null;
+    if (sector && r['Setor'] !== sector) return false;
+    if (tipo && r['Tipo de Ordem'] !== tipo) return false;
+    if (s && d && d < s) return false;
+    if (e && d && d > e) return false;
+    return true;
+  });
+}
+
+// ══════════════════════════════════════════
+// PAGE 1 – VISÃO GERAL
+// ══════════════════════════════════════════
+function applyFilters() {
+  const sector = document.getElementById('filterSetor').value;
+  const start = document.getElementById('filterStart').value;
+  const end = document.getElementById('filterEnd').value;
+  const tipo = document.getElementById('filterTipo').value;
+
+  const data = getFilteredData(sector, start, end, tipo);
+  if (!data.length && !rawData.length) return;
+
+  // KPIs
+  const emerg = data.filter(r => String(r['Prioridade']) === '1').length;
+  const mtbf = calcMTBF(data);
+  const ativos = [...new Set(data.map(r => r['Localização Funcional']).filter(Boolean))].length;
+  const proativas = data.filter(r => r['Tipo de Ordem'] === 'AR40' || r['Tipo de Ordem'] === 'AR50').length;
+  const pct = data.length ? Math.round(proativas / data.length * 100) : 0;
+
+  document.getElementById('kpiTotal').textContent = data.length;
+  document.getElementById('kpiEmerg').textContent = emerg;
+  document.getElementById('kpiMTBF').textContent = mtbf ? mtbf.toFixed(0) + 'h' : '–';
+  document.getElementById('kpiAtivos').textContent = ativos;
+  document.getElementById('kpiProativa').textContent = pct + '%';
+
+  renderQuadrant(data);
+  renderRanking(data, sector);
+  renderTipoChart(data);
+  renderPrioridadeChart(data);
+}
+
+function renderQuadrant(data) {
+  const equipMap = {};
+  data.forEach(r => {
+    const key = r['Localização Funcional'];
+    if (!key) return;
+    if (!equipMap[key]) equipMap[key] = { orders: [], sector: r['Setor'] };
+    equipMap[key].orders.push(r);
+  });
+
+  const points = Object.entries(equipMap).map(([key, val]) => {
+    const mtbf = calcMTBF(val.orders);
+    const emergPct = val.orders.filter(o => String(o['Prioridade']) === '1').length / val.orders.length * 100;
+    return { label: key, x: mtbf, y: emergPct, sector: val.sector, n: val.orders.length };
+  });
+
+  const avgMTBF = points.reduce((s,p) => s + p.x, 0) / (points.length || 1);
+  const avgEmerg = points.reduce((s,p) => s + p.y, 0) / (points.length || 1);
+
+  const colors = ['#1B3A6B','#2563EB','#059669','#D97706','#DC2626','#7C3AED','#0891B2','#BE185D'];
+  const sectors = [...new Set(points.map(p => p.sector))];
+  const colorMap = {};
+  sectors.forEach((s,i) => colorMap[s] = colors[i % colors.length]);
+
+  destroyChart('quadrantChart');
+  charts.quadrantChart = new Chart(document.getElementById('quadrantChart'), {
+    type: 'scatter',
+    data: {
+      datasets: sectors.map(s => ({
+        label: s,
+        data: points.filter(p => p.sector === s).map(p => ({ x: p.x, y: p.y, label: p.label })),
+        backgroundColor: colorMap[s] + 'CC',
+        borderColor: colorMap[s],
+        pointRadius: 8, pointHoverRadius: 11
+      }))
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { size: 11 } } },
+        tooltip: { callbacks: { label: ctx => `${ctx.raw.label}: MTBF=${ctx.raw.x.toFixed(0)}h, Emerg=${ctx.raw.y.toFixed(0)}%` } },
+        annotation: { annotations: {
+          vLine: { type: 'line', xMin: avgMTBF, xMax: avgMTBF, borderColor: '#94A3B8', borderWidth: 1, borderDash: [4,4] },
+          hLine: { type: 'line', yMin: avgEmerg, yMax: avgEmerg, borderColor: '#94A3B8', borderWidth: 1, borderDash: [4,4] }
+        }}
+      },
+      scales: {
+        x: { title: { display: true, text: 'MTBF (horas)', font: { size: 11 } } },
+        y: { title: { display: true, text: '% Ordens Emergenciais', font: { size: 11 } } }
+      }
+    }
+  });
+}
+
+function renderRanking(data, sector) {
+  document.getElementById('rankingSetor').textContent = sector || 'Todos os Setores';
+  const equipMap = {};
+  data.forEach(r => {
+    const key = r['Localização Funcional'];
+    if (!key) return;
+    if (!equipMap[key]) equipMap[key] = { orders: [], sector: r['Setor'] };
+    equipMap[key].orders.push(r);
+  });
+
+  const ranked = Object.entries(equipMap)
+    .map(([key, val]) => ({ key, mtbf: calcMTBF(val.orders), n: val.orders.length, sector: val.sector }))
+    .sort((a,b) => b.mtbf - a.mtbf);
+
+  const maxMTBF = ranked[0]?.mtbf || 1;
+  const medals = ['gold','silver','bronze'];
+  const tbody = document.getElementById('rankingBody');
+  tbody.innerHTML = ranked.slice(0,20).map((r,i) => {
+    const rankClass = medals[i] || '';
+    const pct = Math.round(r.mtbf / maxMTBF * 100);
+    return `<tr>
+      <td><span class="rank-num ${rankClass}">${i+1}</span></td>
+      <td style="font-weight:600">${r.key}</td>
+      <td><span class="tag tag-blue">${r.sector || '–'}</span></td>
+      <td>
+        <div class="mtbf-bar-wrap">
+          <div class="mtbf-bar-bg"><div class="mtbf-bar-fill" style="width:${pct}%"></div></div>
+          <strong>${r.mtbf.toFixed(0)}h</strong>
+        </div>
+      </td>
+      <td>${r.n}</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="5" style="text-align:center;color:#94A3B8;padding:30px">Sem dados</td></tr>';
+}
+
+function renderTipoChart(data) {
+  const ar30 = data.filter(r => r['Tipo de Ordem'] === 'AR30').length;
+  const ar40 = data.filter(r => r['Tipo de Ordem'] === 'AR40').length;
+  const ar50 = data.filter(r => r['Tipo de Ordem'] === 'AR50').length;
+
+  destroyChart('tipoOrdemChart');
+  charts.tipoOrdemChart = new Chart(document.getElementById('tipoOrdemChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['AR30 – Corretiva', 'AR40 – Corretiva Prev.', 'AR50 – Corretiva Predic.'],
+      datasets: [{ data: [ar30, ar40, ar50], backgroundColor: ['#DC2626','#D97706','#059669'], borderWidth: 2, borderColor: '#fff' }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+  });
+}
+
+function renderPrioridadeChart(data) {
+  const p1 = data.filter(r => String(r['Prioridade']) === '1').length;
+  const p3 = data.filter(r => String(r['Prioridade']) === '3').length;
+
+  destroyChart('prioridadeChart');
+  charts.prioridadeChart = new Chart(document.getElementById('prioridadeChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Prioridade 1 – Emergência', 'Prioridade 3 – Rotina'],
+      datasets: [{ data: [p1, p3], backgroundColor: ['#DC2626','#1B3A6B'], borderWidth: 2, borderColor: '#fff' }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+  });
+}
+
+// ══════════════════════════════════════════
+// PAGE 2 – ANÁLISE DE MTBF
+// ══════════════════════════════════════════
+function renderMTBFAnalysis() {
+  const equip = document.getElementById('filterEquip').value;
+  const start = document.getElementById('mtbfStart').value;
+  const end = document.getElementById('mtbfEnd').value;
+
+  let data = rawData.filter(r => {
+    const d = parseDate(r['Data do Incidente']);
+    const s = start ? new Date(start) : null;
+    const e = end ? new Date(end) : null;
+    if (equip && r['Localização Funcional'] !== equip) return false;
+    if (s && d && d < s) return false;
+    if (e && d && d > e) return false;
+    return true;
+  });
+
+  const ar30 = data.filter(r => r['Tipo de Ordem'] === 'AR30');
+  const ar40 = data.filter(r => r['Tipo de Ordem'] === 'AR40');
+  const ar50 = data.filter(r => r['Tipo de Ordem'] === 'AR50');
+
+  document.getElementById('mtbfTotal').textContent = data.length ? calcMTBF(data).toFixed(0) + 'h' : '–';
+  document.getElementById('mtbfAR30').textContent = ar30.length ? calcMTBF(ar30).toFixed(0) + 'h' : '–';
+  document.getElementById('mtbfAR40').textContent = ar40.length ? calcMTBF(ar40).toFixed(0) + 'h' : '–';
+  document.getElementById('mtbfAR50').textContent = ar50.length ? calcMTBF(ar50).toFixed(0) + 'h' : '–';
+
+  // Group by month
+  const monthly = {};
+  data.forEach(r => {
+    const d = parseDate(r['Data do Incidente']);
+    if (!d) return;
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    if (!monthly[key]) monthly[key] = { all: [], ar30: [], ar40: [], ar50: [] };
+    monthly[key].all.push(r);
+    if (r['Tipo de Ordem'] === 'AR30') monthly[key].ar30.push(r);
+    if (r['Tipo de Ordem'] === 'AR40') monthly[key].ar40.push(r);
+    if (r['Tipo de Ordem'] === 'AR50') monthly[key].ar50.push(r);
+  });
+
+  const months = Object.keys(monthly).sort();
+  const mtbfByMonth = months.map(m => calcMTBF(monthly[m].all));
+
+  // Trend
+  if (mtbfByMonth.length >= 2) {
+    const first = mtbfByMonth[0], last = mtbfByMonth[mtbfByMonth.length-1];
+    const pct = ((last - first) / (first || 1) * 100).toFixed(1);
+    const badge = document.getElementById('trendBadge');
+    if (last > first) { badge.className = 'status-badge status-ok'; badge.textContent = `⬆️ Melhora de ${pct}%`; }
+    else { badge.className = 'status-badge'; badge.style.background='#FEF2F2'; badge.style.color='#DC2626'; badge.textContent = `⬇️ Queda de ${Math.abs(pct)}%`; }
+  }
+
+  destroyChart('mtbfEvolutionChart');
+  charts.mtbfEvolutionChart = new Chart(document.getElementById('mtbfEvolutionChart'), {
+    type: 'line',
+    data: {
+      labels: months.map(m => { const [y,mo] = m.split('-'); return ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][parseInt(mo)-1]+'/'+y.slice(2); }),
+      datasets: [{
+        label: 'MTBF Total', data: mtbfByMonth,
+        borderColor: '#1B3A6B', backgroundColor: 'rgba(27,58,107,.08)',
+        fill: true, tension: .4, pointRadius: 5, pointBackgroundColor: '#1B3A6B'
+      }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } },
+      scales: { y: { title: { display: true, text: 'Horas' } } } }
+  });
+
+  destroyChart('mtbfByTypeChart');
+  charts.mtbfByTypeChart = new Chart(document.getElementById('mtbfByTypeChart'), {
+    type: 'line',
+    data: {
+      labels: months.map(m => { const [y,mo] = m.split('-'); return ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][parseInt(mo)-1]+'/'+y.slice(2); }),
+      datasets: [
+        { label: 'AR30 – Corretiva', data: months.map(m => calcMTBF(monthly[m].ar30) || null), borderColor: '#DC2626', tension: .4, pointRadius: 4 },
+        { label: 'AR40 – Prev.', data: months.map(m => calcMTBF(monthly[m].ar40) || null), borderColor: '#D97706', tension: .4, pointRadius: 4 },
+        { label: 'AR50 – Predic.', data: months.map(m => calcMTBF(monthly[m].ar50) || null), borderColor: '#059669', tension: .4, pointRadius: 4 }
+      ]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } },
+      scales: { y: { title: { display: true, text: 'Horas' } } } }
+  });
+
+  // Timeline
+  const durations = data.map(r => ({
+    x: parseDate(r['Data do Incidente'])?.toLocaleDateString('pt-BR'),
+    y: parseFloat(r['Duração da Parada (h)'] || r['Duração da Parada']) || 0,
+    tipo: r['Tipo de Ordem']
+  })).filter(r => r.x);
+
+  destroyChart('timelineChart');
+  charts.timelineChart = new Chart(document.getElementById('timelineChart'), {
+    type: 'bar',
+    data: {
+      labels: durations.map(d => d.x),
+      datasets: [{
+        label: 'Duração da Parada (h)',
+        data: durations.map(d => d.y),
+        backgroundColor: durations.map(d => d.tipo === 'AR30' ? '#DC262688' : d.tipo === 'AR40' ? '#D9770688' : '#05966988'),
+        borderRadius: 4
+      }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+      scales: { y: { title: { display: true, text: 'Horas' } } } }
+  });
+}
+
+// ══════════════════════════════════════════
+// PAGE 3 – ANÁLISE ESTRATÉGICA
+// ══════════════════════════════════════════
+function renderEstrategia() {
+  const sector = document.getElementById('estratSetor').value;
+  const start = document.getElementById('estratStart').value;
+  const end = document.getElementById('estratEnd').value;
+  const data = getFilteredData(sector, start, end, '');
+
+  if (!data.length) return;
+
+  // Monthly grouping
+  const monthly = {};
+  data.forEach(r => {
+    const d = parseDate(r['Data do Incidente']);
+    if (!d) return;
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    if (!monthly[key]) monthly[key] = [];
+    monthly[key].push(r);
+  });
+  const months = Object.keys(monthly).sort();
+  const labels = months.map(m => { const [y,mo] = m.split('-'); return ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][parseInt(mo)-1]+'/'+y.slice(2); });
+
+  // Insights
+  generateInsights(data, monthly, months);
+
+  // Stacked bar: order composition
+  destroyChart('estratOrdemChart');
+  charts.estratOrdemChart = new Chart(document.getElementById('estratOrdemChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'AR30 – Corretiva', data: months.map(m => monthly[m].filter(r => r['Tipo de Ordem']==='AR30').length), backgroundColor: '#DC2626CC', borderRadius: 3 },
+        { label: 'AR40 – Prev.', data: months.map(m => monthly[m].filter(r => r['Tipo de Ordem']==='AR40').length), backgroundColor: '#D97706CC', borderRadius: 3 },
+        { label: 'AR50 – Predic.', data: months.map(m => monthly[m].filter(r => r['Tipo de Ordem']==='AR50').length), backgroundColor: '#059669CC', borderRadius: 3 }
+      ]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } },
+      scales: { x: { stacked: true }, y: { stacked: true, title: { display: true, text: 'Ordens' } } } }
+  });
+
+  // MTBF P1 vs Total
+  destroyChart('estratMTBFChart');
+  charts.estratMTBFChart = new Chart(document.getElementById('estratMTBFChart'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label: 'MTBF Total', data: months.map(m => calcMTBF(monthly[m]) || null), borderColor: '#1B3A6B', tension: .4, pointRadius: 4, fill: false },
+        { label: 'MTBF Emerg. (P1)', data: months.map(m => calcMTBF(monthly[m].filter(r => String(r['Prioridade'])==='1')) || null), borderColor: '#DC2626', tension: .4, pointRadius: 4, borderDash: [5,3], fill: false }
+      ]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } },
+      scales: { y: { title: { display: true, text: 'Horas' } } } }
+  });
+
+  // Tendency: % proactive vs reactive
+  destroyChart('tendenciaChart');
+  charts.tendenciaChart = new Chart(document.getElementById('tendenciaChart'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: '% Manutenção Proativa (AR40+AR50)',
+          data: months.map(m => {
+            const t = monthly[m].length;
+            const p = monthly[m].filter(r => r['Tipo de Ordem']==='AR40'||r['Tipo de Ordem']==='AR50').length;
+            return t ? Math.round(p/t*100) : 0;
+          }),
+          borderColor: '#059669', backgroundColor: 'rgba(5,150,105,.1)', fill: true, tension: .4, pointRadius: 4
+        },
+        {
+          label: '% Manutenção Reativa (AR30)',
+          data: months.map(m => {
+            const t = monthly[m].length;
+            const r = monthly[m].filter(o => o['Tipo de Ordem']==='AR30').length;
+            return t ? Math.round(r/t*100) : 0;
+          }),
+          borderColor: '#DC2626', backgroundColor: 'rgba(220,38,38,.07)', fill: true, tension: .4, pointRadius: 4
+        }
+      ]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } },
+      scales: { y: { min: 0, max: 100, title: { display: true, text: '%' } } } }
+  });
+}
+
+function generateInsights(data, monthly, months) {
+  const insights = [];
+  const ar30 = data.filter(r => r['Tipo de Ordem'] === 'AR30').length;
+  const ar50 = data.filter(r => r['Tipo de Ordem'] === 'AR50').length;
+  const p1 = data.filter(r => String(r['Prioridade']) === '1').length;
+  const total = data.length || 1;
+  const pctReativa = ar30 / total * 100;
+  const pctPreditiva = ar50 / total * 100;
+  const pctEmerg = p1 / total * 100;
+  const mtbfGeral = calcMTBF(data);
+
+  // Trend MTBF
+  if (months.length >= 2) {
+    const first = calcMTBF(monthly[months[0]]);
+    const last = calcMTBF(monthly[months[months.length-1]]);
+    if (last > first * 1.1) {
+      insights.push({ type: 'good', icon: '✅', title: 'MTBF em crescimento', desc: `O MTBF aumentou de ${first.toFixed(0)}h para ${last.toFixed(0)}h. Sua estratégia de manutenção está gerando resultados positivos.` });
+    } else if (last < first * 0.9) {
+      insights.push({ type: 'bad', icon: '🔴', title: 'MTBF em queda', desc: `O MTBF caiu de ${first.toFixed(0)}h para ${last.toFixed(0)}h. Recomenda-se revisar os planos de manutenção e investigar causas raiz.` });
+    }
+  }
+
+  // Preditiva + MTBF crescendo
+  if (pctPreditiva > 20 && mtbfGeral > 0) {
+    insights.push({ type: 'good', icon: '🎯', title: 'Estratégia proativa em ação', desc: `${pctPreditiva.toFixed(0)}% das ordens são preditivas (AR50). Isso indica manutenção proativa — o caminho correto para aumentar o MTBF sustentavelmente.` });
+  }
+
+  // Alta emergência
+  if (pctEmerg > 30) {
+    insights.push({ type: 'bad', icon: '🚨', title: 'Alto índice de emergências', desc: `${pctEmerg.toFixed(0)}% das ordens são Prioridade 1 (Emergência). Isso indica que os planos de manutenção preventiva podem não estar sendo executados corretamente. Revisar o cumprimento dos planos de MP.` });
+  }
+
+  // Alta corretiva
+  if (pctReativa > 60) {
+    insights.push({ type: 'warn', icon: '⚠️', title: 'Manutenção predominantemente reativa', desc: `${pctReativa.toFixed(0)}% das ordens são corretivas (AR30). Recomenda-se migrar para estratégia preditiva: análise de vibração, termografia, ultrassom.` });
+  } else if (pctReativa < 30) {
+    insights.push({ type: 'good', icon: '✅', title: 'Baixa reatividade', desc: `Apenas ${pctReativa.toFixed(0)}% de ordens corretivas. Sua equipe está controlando falhas antes que aconteçam.` });
+  }
+
+  // MTBF P1 trend
+  if (months.length >= 2) {
+    const p1First = monthly[months[0]].filter(r => String(r['Prioridade'])==='1');
+    const p1Last = monthly[months[months.length-1]].filter(r => String(r['Prioridade'])==='1');
+    if (p1Last.length > p1First.length * 1.2) {
+      insights.push({ type: 'bad', icon: '📉', title: 'Emergências aumentando', desc: 'O número de ordens de emergência (P1) está crescendo. Isso pode indicar falha na execução dos planos de manutenção preventiva ou deterioração acelerada dos ativos.' });
+    }
+  }
+
+  if (!insights.length) {
+    insights.push({ type: 'info', icon: 'ℹ️', title: 'Dados insuficientes para diagnóstico completo', desc: 'Carregue mais dados históricos (mínimo 3 meses) para gerar diagnósticos de tendência mais precisos.' });
+  }
+
+  const container = document.getElementById('insightList');
+  container.innerHTML = insights.map(i => `
+    <div class="insight-item ${i.type}">
+      <div class="insight-icon">${i.icon}</div>
+      <div>
+        <div class="insight-title">${i.title}</div>
+        <div class="insight-desc">${i.desc}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════
+// DANIEL MORAIS IA
+// ══════════════════════════════════════════
+function askMethod(question) {
+  document.getElementById('danielInput').value = question;
+  switchPage('daniel');
+  // find tab
+  document.querySelectorAll('.tab').forEach(t => { if (t.textContent.includes('Daniel')) t.click(); });
+  setTimeout(sendToDaniel, 100);
+}
+
+async function sendToDaniel() {
+  const input = document.getElementById('danielInput');
+  const msg = input.value.trim();
+  if (!msg) return;
+
+  const chat = document.getElementById('danielChat');
+  const btn = document.getElementById('sendBtn');
+
+  // Add user message
+  chat.innerHTML += `<div class="msg user"><div class="msg-name">Você</div><div class="msg-bubble">${escapeHtml(msg)}</div></div>`;
+  input.value = '';
+  btn.disabled = true;
+
+  // Typing indicator
+  const typingId = 'typing-' + Date.now();
+  chat.innerHTML += `<div class="msg ai" id="${typingId}"><div class="msg-name">Daniel Morais IA</div><div class="msg-bubble"><div class="typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div></div>`;
+  chat.scrollTop = chat.scrollHeight;
+
+  // Build context from data
+  const dataContext = rawData.length ? `
+Dados carregados: ${rawData.length} ordens de manutenção.
+Setores: ${[...new Set(rawData.map(r=>r['Setor']).filter(Boolean))].join(', ')}.
+Ativos: ${[...new Set(rawData.map(r=>r['Localização Funcional']).filter(Boolean))].length} localizações funcionais.
+AR30: ${rawData.filter(r=>r['Tipo de Ordem']==='AR30').length} ordens.
+AR40: ${rawData.filter(r=>r['Tipo de Ordem']==='AR40').length} ordens.
+AR50: ${rawData.filter(r=>r['Tipo de Ordem']==='AR50').length} ordens.
+Emergências (P1): ${rawData.filter(r=>String(r['Prioridade'])==='1').length} ordens.
+MTBF médio geral: ${calcMTBF(rawData).toFixed(0)} horas.
+` : 'Nenhum dado carregado ainda.';
+
+  const systemPrompt = `Você é Daniel Morais, especialista sênior em Confiabilidade e Manutenção Industrial com mais de 20 anos de experiência. 
+Você é autor do livro "O Código da Confiabilidade" e consultor certificado em RCM, Weibull, RCA e FMEA.
+
+Seu estilo: direto, técnico mas didático, sempre orientado a ação. Você sempre:
+1. Indica qual método de confiabilidade aplicar (Weibull 2 ou 3 parâmetros, RCM, RCA, FMEA, Pareto, Curva da Banheira)
+2. Faz perguntas estratégicas sobre modos de falha para aprofundar o diagnóstico
+3. Sugere análises complementares (Pareto, diagrama de Ishikawa, análise de vibração, etc.)
+4. Interpreta indicadores MTBF, MTTR, disponibilidade
+5. Usa terminologia técnica correta: Weibull β (forma) e η (escala), função de confiabilidade R(t), taxa de falha λ(t)
+6. Quando MTBF está caindo com AR30 P1 subindo → falha na estratégia preventiva
+7. Quando MTBF sobe com AR50 → manutenção preditiva eficaz
+
+Contexto dos dados atuais:
+${dataContext}
+
+Responda em português brasileiro. Seja objetivo, técnico e orientado a diagnóstico e ação. Use listas e estrutura quando ajudar. Máximo 400 palavras.`;
+
+  try {
+    if (!checkApiKey()) return;
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-api-key": getApiKey(), "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 1000,
+        system: systemPrompt,
+        messages: [{ role: "user", content: msg }]
+      })
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      const errMsg = data.error?.message || JSON.stringify(data);
+      const reply = `Erro da API (${response.status}): ${errMsg}`;
+      removeTypingIfExists();
+      appendAiMessage(reply);
+      btn.disabled = false;
+      return;
+    }
+    const reply = data.content?.map(c => c.text || '').join('') || 'Resposta vazia da API.';
+
+    document.getElementById(typingId).querySelector('.msg-bubble').innerHTML = reply.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\*(.*?)\*/g,'<em>$1</em>');
+  } catch(err) {
+    document.getElementById(typingId).querySelector('.msg-bubble').textContent = 'Erro de conexão. Verifique sua internet e tente novamente.';
+  }
+
+  btn.disabled = false;
+  chat.scrollTop = chat.scrollHeight;
+}
+
+// ══════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════
+function destroyChart(id) {
+  if (charts[id]) { charts[id].destroy(); delete charts[id]; }
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function downloadTemplate() {
+  alert('Por favor, use o arquivo "modelo_confiabilidade.xlsx" fornecido junto com este painel. Ele contém as abas "Ordens" e "Operative Time" já formatadas.');
+}
+
+// ══════════════════════════════════════════
+// JARVIS HOLOGRAM
+// ══════════════════════════════════════════
+let isSpeaking = false;
+let speechSynth = window.speechSynthesis;
+let currentUtterance = null;
+let isListening = false;
+let recognition = null;
+let jarvisConversation = [];
+
+// Init particles
+function initParticles() {
+  const container = document.getElementById('holoParticles');
+  if (!container) return;
+  for (let i = 0; i < 20; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.cssText = `
+      left:${Math.random()*100}%;
+      bottom:${Math.random()*30}%;
+      animation-duration:${2+Math.random()*4}s;
+      animation-delay:${Math.random()*4}s;
+      opacity:${0.3+Math.random()*0.7};
+    `;
+    container.appendChild(p);
+  }
+}
+
+// Update HUD data from rawData
+function updateHoloHUD() {
+  if (!rawData.length) return;
+  const mtbf = calcMTBF(rawData);
+  const proativas = rawData.filter(r => r['Tipo de Ordem']==='AR40'||r['Tipo de Ordem']==='AR50').length;
+  const pct = Math.round(proativas/rawData.length*100);
+  const ativos = [...new Set(rawData.map(r=>r['Localização Funcional']).filter(Boolean))].length;
+  document.getElementById('hudMTBF').textContent  = mtbf ? mtbf.toFixed(0)+'h' : '–';
+  document.getElementById('hudOrdens').textContent = rawData.length;
+  document.getElementById('hudAtivos').textContent = ativos;
+  document.getElementById('hudProat').textContent  = pct+'%';
+}
+
+// Status line animation
+function setHudStatus(msg) {
+  const el = document.getElementById('hudStatus');
+  if (el) el.textContent = msg;
+}
+
+function setStatusLine(msg, pct) {
+  const sl = document.getElementById('statusLine');
+  const sf = document.getElementById('statusFill');
+  if (sl) sl.textContent = msg;
+  if (sf && pct !== undefined) sf.style.width = pct + '%';
+}
+
+// Speak text
+// ── VOICE SELECTION — prefers deep masculine voice ──
+function getBestMaleVoice() {
+  const voices = speechSynth.getVoices();
+
+  // Log available voices for debugging
+  console.log('Available voices:', voices.map(v => `${v.name} (${v.lang})`));
+
+  // Known feminine voice names to exclude
+  const femNames = /francisca|vitoria|luciana|female|feminina|woman|google.*female|edg.*female|samantha|karen|moira|fiona|tessa|veena|victoria|zira|hazel/i;
+
+  // Known masculine voice names to prefer
+  const mascNames = /antonio|daniel|jorge|ricardo|carlos|male|masculin|david|mark|alex|fred|tom|paulo|otavio|google.*male/i;
+
+  const priority = [
+    // 1. Known masculine pt-BR
+    v => v.lang === 'pt-BR' && mascNames.test(v.name),
+    // 2. pt-BR not feminine
+    v => v.lang === 'pt-BR' && !femNames.test(v.name),
+    // 3. Any pt not feminine
+    v => v.lang.startsWith('pt') && !femNames.test(v.name),
+    // 4. English masculine (sounds like real JARVIS — British accent bonus)
+    v => v.lang === 'en-GB' && mascNames.test(v.name),
+    v => v.lang === 'en-GB' && !femNames.test(v.name),
+    v => v.lang === 'en-US' && /david|mark|alex|fred|tom|daniel/i.test(v.name),
+    v => v.lang === 'en-US' && !femNames.test(v.name),
+    // 5. Any masculine sounding voice
+    v => mascNames.test(v.name),
+    // 6. Last resort — just pick something
+    v => !femNames.test(v.name),
+  ];
+
+  // Use manually selected voice if set
+  if (manualVoiceIndex !== null && voices[manualVoiceIndex]) {
+    return voices[manualVoiceIndex];
+  }
+
+  for (const test of priority) {
+    const found = voices.find(test);
+    if (found) {
+      console.log('JARVIS voice selected:', found.name, found.lang);
+      return found;
+    }
+  }
+  return null;
+}
+
+// Show available voices in hologram for user to pick
+function listAvailableVoices() {
+  const voices = speechSynth.getVoices();
+  const ptVoices = voices.filter(v => v.lang.startsWith('pt') || v.lang.startsWith('en'));
+  let msg = '**Vozes disponíveis no seu dispositivo:**\n\n';
+  ptVoices.forEach((v, i) => {
+    msg += `${i+1}. ${v.name} (${v.lang})\n`;
+  });
+  msg += '\nDigite: **usar voz [número]** para selecionar a que preferir.';
+  addJarvisMessage('ai', msg);
+}
+
+// Allow user to manually select voice by number
+let manualVoiceIndex = null;
+function setManualVoice(index) {
+  const voices = speechSynth.getVoices();
+  const ptVoices = voices.filter(v => v.lang.startsWith('pt') || v.lang.startsWith('en'));
+  if (ptVoices[index]) {
+    manualVoiceIndex = voices.indexOf(ptVoices[index]);
+    addJarvisMessage('ai', `Voz configurada: **${ptVoices[index].name}**. Faça uma pergunta para testar!`);
+    // Test it
+    const test = new SpeechSynthesisUtterance('Voz configurada com sucesso. Sou o JARVIS.');
+    test.voice = ptVoices[index];
+    test.lang = ptVoices[index].lang;
+    test.rate = 1.15; test.pitch = 0.75;
+    speechSynth.speak(test);
+  }
+}
+
+function cleanTextForSpeech(text) {
+  return text
+    // Remove HTML tags
+    .replace(/<[^>]+>/g, ' ')
+    // Remove markdown bold/italic
+    .replace(/\*\*(.*?)\*\*/g, '$1')
+    .replace(/\*(.*?)\*/g, '$1')
+    // Remove markdown code blocks
+    .replace(/```[\s\S]*?```/g, 'bloco de código omitido')
+    .replace(/`([^`]+)`/g, '$1')
+    // Remove markdown headers
+    .replace(/#{1,6}\s+/g, '')
+    // Remove bullet points and numbered lists markers
+    .replace(/^\s*[-•*]\s+/gm, '')
+    .replace(/^\s*\d+\.\s+/gm, '')
+    // Remove URLs
+    .replace(/https?:\/\/[^\s]+/g, 'link omitido')
+    // Remove special chars that sound bad: colons after words, slashes, pipes
+    .replace(/([A-Za-z]):/g, '$1,')
+    .replace(/\|/g, ', ')
+    .replace(/\/\/+/g, ' ')
+    .replace(/_{2,}/g, ' ')
+    // Remove parenthetical abbreviations like (MTBF), (AR30)
+    .replace(/\(([A-Z]{2,6})\)/g, '$1')
+    // Fix common technical terms pronunciation in pt-BR
+    .replace(/\bMTBF\b/g, 'M T B F')
+    .replace(/\bMTTR\b/g, 'M T T R')
+    .replace(/\bRCM\b/g, 'R C M')
+    .replace(/\bRCA\b/g, 'R C A')
+    .replace(/\bFMEA\b/g, 'F M E A')
+    .replace(/\bFMECA\b/g, 'F M E C A')
+    .replace(/\bAR30\b/g, 'A R trinta')
+    .replace(/\bAR40\b/g, 'A R quarenta')
+    .replace(/\bAR50\b/g, 'A R cinquenta')
+    .replace(/\bKPI\b/g, 'K P I')
+    .replace(/\bOEE\b/g, 'O E E')
+    .replace(/\bTPM\b/g, 'T P M')
+    .replace(/\bHVAC\b/g, 'H V A C')
+    .replace(/\bISO\b/g, 'I S O')
+    .replace(/\bSAP\b/g, 'S A P')
+    // Remove remaining special chars
+    .replace(/[•→←↑↓★☆✓✗✅❌⚠🔴🟡🟢🔵]/gu, '')
+    .replace(/[_\[\]{}()<>]/g, ' ')
+    // Clean up multiple spaces and punctuation
+    .replace(/\.{2,}/g, '.')
+    .replace(/,{2,}/g, ',')
+    .replace(/\s{2,}/g, ' ')
+    // Trim
+    .trim()
+    // Limit length - JARVIS speaks concisely, max 600 chars
+    .substring(0, 600);
+}
+
+function jarvisSpeak(text) {
+  if (!document.getElementById('speakerToggle')?.checked) return;
+  stopSpeaking();
+
+  const clean = cleanTextForSpeech(text);
+  if (!clean) return;
+
+  // Split into natural sentences for smoother delivery
+  const sentences = clean.match(/[^.!?]+[.!?]+/g) || [clean];
+
+  let sentenceIndex = 0;
+
+  function speakNext() {
+    if (sentenceIndex >= sentences.length || !isSpeaking && sentenceIndex > 0) return;
+
+    const sentence = sentences[sentenceIndex].trim();
+    if (!sentence) { sentenceIndex++; speakNext(); return; }
+
+    const utter = new SpeechSynthesisUtterance(sentence);
+    const selectedVoice = getBestMaleVoice();
+    utter.lang = selectedVoice ? selectedVoice.lang : 'pt-BR';
+    utter.rate = 1.15;
+    utter.pitch = 0.75;
+    utter.volume = 1.0;
+
+    // Find best pt-BR voice
+    if (selectedVoice) utter.voice = selectedVoice;
+
+    if (sentenceIndex === 0) {
+      utter.onstart = () => {
+        isSpeaking = true;
+        document.getElementById('holoWaves')?.classList.add('speaking');
+        document.getElementById('holoCore')?.style.setProperty('filter','drop-shadow(0 0 20px #00A8FF)');
+        document.getElementById('stopSpeakBtn').style.display = 'inline-flex';
+        setHudStatus('FALANDO...');
+      };
+    }
+
+    utter.onend = () => {
+      sentenceIndex++;
+      if (sentenceIndex < sentences.length) {
+        // Small natural pause between sentences
+        setTimeout(speakNext, 120);
+      } else {
+        isSpeaking = false;
+        document.getElementById('holoWaves')?.classList.remove('speaking');
+        document.getElementById('holoCore')?.style.removeProperty('filter');
+        document.getElementById('stopSpeakBtn').style.display = 'none';
+        setHudStatus('AGUARDANDO COMANDO');
+      }
+    };
+
+    utter.onerror = () => {
+      sentenceIndex++;
+      setTimeout(speakNext, 100);
+    };
+
+    currentUtterance = utter;
+    speechSynth.speak(utter);
+  }
+
+  isSpeaking = true;
+  speakNext();
+}
+
+function stopSpeaking() {
+  speechSynth.cancel();
+  isSpeaking = false;
+  document.getElementById('holoWaves')?.classList.remove('speaking');
+  document.getElementById('stopSpeakBtn').style.display = 'none';
+  setHudStatus('AGUARDANDO COMANDO');
+}
+
+// Voice recognition
+function toggleVoice() {
+  if (isListening) {
+    recognition?.stop();
+    return;
+  }
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { alert('Seu navegador não suporta reconhecimento de voz. Use Chrome.'); return; }
+  recognition = new SR();
+  recognition.lang = 'pt-BR';
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.onstart = () => {
+    isListening = true;
+    document.getElementById('micBtn').classList.add('listening');
+    document.getElementById('voiceStatus').textContent = '🎤 ESCUTANDO...';
+    stopSpeaking();
+  };
+  recognition.onresult = e => {
+    const transcript = e.results[0][0].transcript;
+    document.getElementById('jarvisInput').value = transcript;
+    document.getElementById('voiceStatus').textContent = `✅ "${transcript}"`;
+    setTimeout(() => jarvisSend(), 400);
+  };
+  recognition.onerror = () => {
+    document.getElementById('voiceStatus').textContent = '❌ Erro no microfone';
+    isListening = false;
+    document.getElementById('micBtn').classList.remove('listening');
+  };
+  recognition.onend = () => {
+    isListening = false;
+    document.getElementById('micBtn').classList.remove('listening');
+    setTimeout(() => document.getElementById('voiceStatus').textContent = '', 2000);
+  };
+  recognition.start();
+}
+
+// Add message to chat
+function addJarvisMessage(role, text) {
+  const chat = document.getElementById('jarvisMessages');
+  const isAI = role === 'ai';
+  const div = document.createElement('div');
+  div.className = `jmsg jmsg-${role}`;
+  const formatted = text
+    .replace(/\*\*(.*?)\*\*/g,'<strong style="color:#00FF88">$1</strong>')
+    .replace(/\*(.*?)\*/g,'<em>$1</em>')
+    .replace(/\n/g,'<br>')
+    .replace(/`(.*?)`/g,'<code style="background:rgba(0,168,255,.1);padding:1px 5px;border-radius:3px;color:#00A8FF;font-family:Courier New">$1</code>');
+  div.innerHTML = `
+    <div class="jmsg-avatar">${isAI?'DM':'EU'}</div>
+    <div class="jmsg-content">
+      <div class="jmsg-name">${isAI?'DANIEL MORAIS IA':'ENGENHEIRO'}</div>
+      <div class="jmsg-text">${formatted}</div>
+    </div>`;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+  return div;
+}
+
+// Typing indicator
+function showJarvisTyping() {
+  const chat = document.getElementById('jarvisMessages');
+  const div = document.createElement('div');
+  div.className = 'jmsg jmsg-ai';
+  div.id = 'jarvisTyping';
+  div.innerHTML = `
+    <div class="jmsg-avatar">DM</div>
+    <div class="jmsg-content">
+      <div class="jmsg-name">DANIEL MORAIS IA</div>
+      <div class="jmsg-text"><div class="jtyping">
+        <div class="jtyping-dot"></div>
+        <div class="jtyping-dot"></div>
+        <div class="jtyping-dot"></div>
+      </div></div>
+    </div>`;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function removeJarvisTyping() {
+  document.getElementById('jarvisTyping')?.remove();
+}
+
+// Build context from loaded data
+function buildDataContext() {
+  if (!rawData.length) return 'Nenhum dado carregado ainda. Peça ao usuário para importar a planilha.';
+  const total = rawData.length;
+  const sectors = [...new Set(rawData.map(r=>r['Setor']).filter(Boolean))];
+  const ativos  = [...new Set(rawData.map(r=>r['Localização Funcional']).filter(Boolean))];
+  const ar30 = rawData.filter(r=>r['Tipo de Ordem']==='AR30').length;
+  const ar40 = rawData.filter(r=>r['Tipo de Ordem']==='AR40').length;
+  const ar50 = rawData.filter(r=>r['Tipo de Ordem']==='AR50').length;
+  const p1   = rawData.filter(r=>String(r['Prioridade'])==='1').length;
+  const mtbf = calcMTBF(rawData);
+  const pctReativa  = Math.round(ar30/total*100);
+  const pctProativa = Math.round((ar40+ar50)/total*100);
+
+  // Top 5 worst assets by emergency rate
+  const equipMap = {};
+  rawData.forEach(r=>{
+    const k=r['Localização Funcional'];
+    if(!k) return;
+    if(!equipMap[k]) equipMap[k]={n:0,p1:0,setor:r['Setor'],orders:[]};
+    equipMap[k].n++; equipMap[k].orders.push(r);
+    if(String(r['Prioridade'])==='1') equipMap[k].p1++;
+  });
+  const worstAssets = Object.entries(equipMap)
+    .map(([k,v])=>({k,pct:Math.round(v.p1/v.n*100),mtbf:calcMTBF(v.orders),n:v.n,setor:v.setor}))
+    .sort((a,b)=>b.pct-a.pct).slice(0,5)
+    .map(a=>`${a.k} (${a.setor}): ${a.pct}% emergências, MTBF=${a.mtbf.toFixed(0)}h, ${a.n} falhas`).join('\n');
+
+  const bestAssets = Object.entries(equipMap)
+    .map(([k,v])=>({k,mtbf:calcMTBF(v.orders),n:v.n,setor:v.setor}))
+    .sort((a,b)=>b.mtbf-a.mtbf).slice(0,5)
+    .map(a=>`${a.k} (${a.setor}): MTBF=${a.mtbf.toFixed(0)}h, ${a.n} falhas`).join('\n');
+
+  return `
+=== DADOS REAIS CARREGADOS ===
+Total de ordens: ${total}
+Setores: ${sectors.join(', ')}
+Ativos monitorados: ${ativos.length}
+MTBF médio geral: ${mtbf.toFixed(0)} horas
+
+Distribuição por tipo:
+- AR30 (Corretiva): ${ar30} ordens (${pctReativa}%)
+- AR40 (Corretiva Preventiva): ${ar40} ordens
+- AR50 (Corretiva Preditiva): ${ar50} ordens
+- Total Proativo (AR40+AR50): ${pctProativa}%
+
+Prioridade 1 (Emergências): ${p1} ordens (${Math.round(p1/total*100)}%)
+Prioridade 3 (Rotina): ${total-p1} ordens
+
+Top 5 ativos com mais emergências:
+${worstAssets}
+
+Top 5 ativos com melhor MTBF:
+${bestAssets}
+`;
+}
+
+// Main send function
+async function jarvisSend() {
+  const input = document.getElementById('jarvisInput');
+  const msg = input.value.trim();
+  if (!msg) return;
+
+  // Voice commands
+  if (/^listar vozes?$/i.test(msg)) {
+    addJarvisMessage('user', msg); input.value = '';
+    listAvailableVoices(); return;
+  }
+  const voiceMatch = msg.match(/^usar voz\s+(\d+)$/i);
+  if (voiceMatch) {
+    addJarvisMessage('user', msg); input.value = '';
+    setManualVoice(parseInt(voiceMatch[1]) - 1); return;
+  }
+
+  stopSpeaking();
+  addJarvisMessage('user', msg);
+  input.value = '';
+
+  jarvisConversation.push({ role:'user', content: msg });
+
+  document.getElementById('jarvisSendBtn').disabled = true;
+  setHudStatus('PROCESSANDO...');
+  setStatusLine('Analisando dados e consultando base de conhecimento...', 60);
+  showJarvisTyping();
+
+  const dataCtx = buildDataContext();
+  const systemPrompt = `Você é Daniel Morais, especialista sênior em Engenharia de Confiabilidade com 25 anos de experiência na indústria. É autor do livro "O Código da Confiabilidade" e consultor internacional certificado.
+
+Suas especialidades:
+- Engenharia de Confiabilidade: Weibull (β e η), MTBF, MTTR, disponibilidade, função R(t), taxa de falha λ(t), curva da banheira
+- RCM (Reliability Centered Maintenance) conforme SAE JA1011/JA1012
+- FMEA/FMECA: análise de modos de falha, severidade, ocorrência, detectabilidade, RPN
+- RCA (Root Cause Analysis): 5 Porquês, Ishikawa, Apollo, Bow-Tie
+- ISO 55000: Gestão de Ativos
+- Lean Manufacturing aplicado à manutenção: TPM, OEE, eliminação de desperdícios, 5S, Kaizen
+- Manutenção Preditiva: análise de vibração, termografia, ultrassom, óleo lubrificante
+- Pareto de falhas e priorização de ações
+
+Regras de comportamento:
+- Fale como especialista: direto, técnico, orientado a solução
+- Cite números dos dados reais quando disponíveis
+- Sempre indique QUAL método aplicar e COMO aplicar
+- Para Weibull: interprete β (< 1 = mortalidade infantil, = 1 = aleatório, > 1 = desgaste)
+- Para RCA: pergunte sobre os modos de falha mais frequentes
+- Sugira Pareto quando houver múltiplos modos de falha
+- Para Lean: identifique desperdícios (tempo de espera, movimentação, retrabalho)
+- Responda em português brasileiro
+- Use formatação clara com **negrito** para termos técnicos
+- Máximo 500 palavras por resposta
+- Seja assertivo como um consultor de alto nível
+
+Dados do sistema carregado:
+${dataCtx}`;
+
+  // Keep only last 8 messages for context
+  const msgHistory = jarvisConversation.slice(-8);
+
+  try {
+    if (!checkApiKey()) return;
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method:"POST",
+      headers:{"Content-Type":"application/json","x-api-key":getApiKey(),"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+      body: JSON.stringify({
+        model:"claude-sonnet-4-6",
+        max_tokens:1000,
+        system: systemPrompt,
+        messages: msgHistory
+      })
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      removeJarvisTyping();
+      const errDetail = data.error?.message || JSON.stringify(data);
+      addJarvisMessage('ai', `**Erro ${response.status}:** ${errDetail}\n\nVerifique: (1) Chave API correta e ativa, (2) Saldo disponível em console.anthropic.com`);
+      document.getElementById('jarvisSendBtn').disabled = false;
+      setHudStatus('ERRO DE API');
+      return;
+    }
+    const reply = data.content?.map(c=>c.text||'').join('') || 'Resposta vazia.';
+
+    removeJarvisTyping();
+    addJarvisMessage('ai', reply);
+    jarvisConversation.push({ role:'assistant', content: reply });
+
+    setStatusLine('Resposta gerada com sucesso.', 100);
+    setHudStatus('RESPOSTA ENVIADA');
+    setTimeout(()=>setStatusLine('Aguardando próximo comando...', 0), 2000);
+
+    // Speak the response via ElevenLabs
+    setTimeout(()=>speakWithElevenLabs(reply), 300);
+
+  } catch(err) {
+    removeJarvisTyping();
+    console.error('JARVIS API Error:', err);
+    addJarvisMessage('ai', `**Erro de conexão:** ${err.message}\n\nPossíveis causas:\n• Chave API inválida ou sem saldo\n• Sem conexão com internet\n• CORS bloqueado pelo navegador (arquivo local)\n\n**Solução:** Hospede o HTML no GitHub Pages ou abra no Chrome do PC`);
+    setHudStatus('ERRO DE CONEXÃO');
+    document.getElementById('jarvisSendBtn').disabled = false;
+  }
+
+  document.getElementById('jarvisSendBtn').disabled = false;
+  updateHoloHUD();
+}
+
+function jarvisAsk(question) {
+  // Switch to hologram tab
+  document.querySelectorAll('.tab').forEach(t=>{
+    if(t.textContent.includes('JARVIS')) t.click();
+  });
+  document.getElementById('jarvisInput').value = question;
+  setTimeout(jarvisSend, 200);
+}
+
+// Init hologram on page load
+window.addEventListener('load', ()=>{
+  initParticles();
+  updateHoloHUD();
+
+  // Load voices — must wait for voices to be ready before speaking
+  function initVoicesAndGreet() {
+    const voices = speechSynth.getVoices();
+    if (voices.length > 0) {
+      startJarvisGreeting();
+    } else {
+      speechSynth.onvoiceschanged = () => {
+        speechSynth.onvoiceschanged = null;
+        startJarvisGreeting();
+      };
+    }
+  }
+
+  function startJarvisGreeting() {
+    setStatusLine('Sistema inicializado. Aguardando dados.', 100);
+    setTimeout(() => {
+      setStatusLine('Daniel Morais IA — Online', 30);
+      setHudStatus('INICIALIZANDO...');
+      // Speak greeting after short delay
+      setTimeout(() => jarvisGreeting(), 800);
+    }, 1200);
+  }
+
+  initVoicesAndGreet();
+});
+
+function jarvisGreeting() {
+  const greeting = 'Olá, eu sou o JARVIS. Seu especialista de confiabilidade. Fui criado pelo Daniel Morais, para ajudar os gestores nas tarefas que agregam valor. Chegou a hora de transformar a confiabilidade em resultado. Qual a missão para hoje?';
+
+  // Show greeting message in chat
+  addJarvisMessage('ai', 'Olá, eu sou o **JARVIS**. Seu especialista de confiabilidade.\n\nFui criado pelo **Daniel Morais**, para ajudar os gestores nas tarefas que agregam valor.\n\nChegou a hora de transformar a **confiabilidade em resultado**.\n\nQual a missão para hoje?');
+
+  // Speak it
+  setHudStatus('INICIALIZANDO SISTEMAS...');
+
+  const utter = new SpeechSynthesisUtterance(greeting);
+  utter.lang = 'pt-BR';
+  utter.rate = 1.12;
+  utter.pitch = 0.75;
+  utter.volume = 1.0;
+
+  const ptVoice = getBestMaleVoice();
+  if (ptVoice) utter.voice = ptVoice;
+
+  utter.onstart = () => {
+    isSpeaking = true;
+    document.getElementById('holoWaves')?.classList.add('speaking');
+    document.getElementById('holoCore')?.style.setProperty('filter','drop-shadow(0 0 30px #00A8FF)');
+    document.getElementById('stopSpeakBtn').style.display = 'inline-flex';
+    setHudStatus('FALANDO...');
+    setStatusLine('Inicializando Daniel Morais IA...', 80);
+  };
+
+  utter.onend = () => {
+    isSpeaking = false;
+    document.getElementById('holoWaves')?.classList.remove('speaking');
+    document.getElementById('holoCore')?.style.removeProperty('filter');
+    document.getElementById('stopSpeakBtn').style.display = 'none';
+    setHudStatus('AGUARDANDO MISSÃO');
+    setStatusLine('Sistemas prontos. Aguardando comando.', 100);
+  };
+
+  // Use ElevenLabs — fallback to browser TTS if key not set
+  speakWithElevenLabs(greeting);
+}
+
+
+// Update HUD whenever data loads
+const origProcessData = processData;
+processData = function() {
+  origProcessData();
+  setTimeout(updateHoloHUD, 500);
+};
+
+// ── API KEY MANAGEMENT ──
+function getApiKey() {
+  return document.getElementById('apiKeyInput').value.trim();
+}
+
+function saveApiKey() {
+  const key = getApiKey();
+  if (key) {
+    try { sessionStorage.setItem('dm_api_key', key); } catch(e) {}
+    try { localStorage.setItem('dm_api_key', key); } catch(e) {}
+  }
+  updateApiKeyStatus();
+}
+
+function updateApiKeyStatus() {
+  const key = getApiKey();
+  const status = document.getElementById('apiKeyStatus');
+  if (key && key.startsWith('sk-ant')) {
+    status.className = 'api-key-status ok';
+    status.textContent = '✅ Chave configurada';
+  } else if (key) {
+    status.className = 'api-key-status warn';
+    status.textContent = '⚠ Formato inválido';
+  } else {
+    status.className = 'api-key-status warn';
+    status.textContent = '⚠ Chave não configurada';
+  }
+}
+
+function toggleApiKeyVisibility() {
+  const input = document.getElementById('apiKeyInput');
+  input.type = input.type === 'password' ? 'text' : 'password';
+}
+
+function checkApiKey() {
+  const key = getApiKey();
+  if (!key || !key.startsWith('sk-ant')) {
+    const go = confirm('Chave API não configurada.\n\nClique OK para abrir console.anthropic.com e obter sua chave gratuita.\n\nApós obter, cole no campo "Chave API" no topo da página.');
+    if (go) window.open('https://console.anthropic.com/settings/keys', '_blank');
+    return false;
+  }
+  return true;
+}
+
+// Restore key from session
+window.addEventListener('load', () => {
+  try {
+    const saved = sessionStorage.getItem('dm_api_key') || localStorage.getItem('dm_api_key');
+    if (saved) {
+      document.getElementById('apiKeyInput').value = saved;
+      updateApiKeyStatus();
+    }
+  } catch(e) {}
+});
+
+
+// ── TEST API CONNECTION ──
+async function testApiConnection() {
+  const key = getApiKey();
+  if (!key) { alert('Cole sua chave API primeiro!'); return; }
+
+  const btn = event.target;
+  btn.textContent = '⏳ Testando...';
+  btn.disabled = true;
+
+  try {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": key,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true"
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 30,
+        messages: [{ role: "user", content: "Responda apenas: OK" }]
+      })
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      const reply = data.content?.[0]?.text || 'OK';
+      alert('✅ CONEXÃO OK!\n\nAPI respondeu: "' + reply + '"\n\nTudo funcionando! Pode usar o Daniel Morais IA e o JARVIS.');
+      btn.textContent = '✅ Conectado!';
+      btn.style.color = '#34D399';
+      btn.style.borderColor = 'rgba(5,150,105,.4)';
+    } else {
+      const err = data.error?.message || JSON.stringify(data);
+      alert('❌ ERRO ' + response.status + ':\n\n' + err + '\n\nVerifique sua chave em console.anthropic.com');
+      btn.textContent = '❌ Erro';
+    }
+  } catch(err) {
+    alert('❌ ERRO DE CONEXÃO:\n\n' + err.message + '\n\nSe estiver abrindo o arquivo localmente (file:// ou content://), o navegador bloqueia a API por segurança.\n\nSolução: Hospede no GitHub Pages (grátis) ou abra no Chrome do computador.');
+    btn.textContent = '❌ Bloqueado';
+  }
+
+  setTimeout(() => { btn.textContent = '🔌 Testar Conexão'; btn.disabled = false; btn.style.color = '#C9A84C'; btn.style.borderColor = 'rgba(201,168,76,.4)'; }, 4000);
+}
+
+
+// ── VOICE SELECTOR MODAL ──
+function openVoiceSelector() {
+  const modal = document.getElementById('voiceSelectorModal');
+  modal.style.display = 'flex';
+  loadVoiceList();
+}
+
+function loadVoiceList() {
+  const list = document.getElementById('voiceList');
+  list.innerHTML = '<div style="color:rgba(0,168,255,.5);font-size:12px;text-align:center;padding:20px;font-family:Courier New,monospace">⏳ Carregando vozes...</div>';
+
+  // Force reload voices — mobile browsers load them async
+  speechSynth.cancel();
+  let attempts = 0;
+
+  function tryLoad() {
+    const voices = speechSynth.getVoices();
+    attempts++;
+    if (voices.length === 0 && attempts < 10) {
+      setTimeout(tryLoad, 300);
+      return;
+    }
+    renderVoiceList(voices);
+  }
+
+  // Also hook onvoiceschanged in case they load late
+  speechSynth.onvoiceschanged = () => {
+    renderVoiceList(speechSynth.getVoices());
+  };
+
+  tryLoad();
+}
+
+function renderVoiceList(voices) {
+  const list = document.getElementById('voiceList');
+  if (!list) return;
+  // Show all voices, sorted: pt-BR first, then pt, then en, then others
+  const sorted = [
+    ...voices.filter(v => v.lang === 'pt-BR'),
+    ...voices.filter(v => v.lang.startsWith('pt') && v.lang !== 'pt-BR'),
+    ...voices.filter(v => v.lang.startsWith('en')),
+    ...voices.filter(v => !v.lang.startsWith('pt') && !v.lang.startsWith('en')),
+  ];
+
+  list.innerHTML = '';
+
+  // Header with count and refresh button
+  const header = document.createElement('div');
+  header.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid rgba(0,168,255,.15)';
+  header.innerHTML = `
+    <span style="font-family:Courier New,monospace;font-size:10px;color:rgba(0,168,255,.5)">${voices.length} VOZES ENCONTRADAS</span>
+    <button onclick="loadVoiceList()" style="background:rgba(0,168,255,.1);border:1px solid rgba(0,168,255,.3);color:#00A8FF;padding:3px 10px;border-radius:4px;font-size:10px;cursor:pointer;font-family:Courier New,monospace">🔄 Atualizar</button>`;
+  list.appendChild(header);
+
+  if (sorted.length === 0) {
+    list.innerHTML += '<div style="color:rgba(255,255,255,.4);font-size:12px;text-align:center;padding:20px">Nenhuma voz encontrada.<br><br>Tente:<br>1. Fechar e reabrir o painel<br>2. Verificar Configurações → Acessibilidade → Texto para fala</div>';
+    return;
+  }
+
+  sorted.forEach((v, i) => {
+    const isSelected = manualVoiceIndex === voices.indexOf(v);
+    const isMasc = !/francisca|vitoria|luciana|female|feminina|woman|zira|hazel|karen|samantha/i.test(v.name);
+    const row = document.createElement('div');
+    row.style.display = 'flex'; row.style.alignItems = 'center'; row.style.gap = '8px';
+    row.innerHTML = `
+      <button class="voice-option-btn ${isSelected ? 'selected' : ''}" onclick="selectVoiceFromModal(${voices.indexOf(v)}, '${v.name}', this)">
+        <div>
+          <div class="voice-name">${isMasc ? '👨' : '👩'} ${v.name}</div>
+          <div class="voice-lang">${v.lang}${v.localService ? ' · Local' : ' · Online'}</div>
+        </div>
+        <span style="font-size:10px;color:${isSelected ? '#00FF88' : 'rgba(0,168,255,.3)'};font-family:Courier New,monospace">${isSelected ? '✅ ATIVA' : ''}</span>
+      </button>
+      <button class="voice-test-btn" onclick="testVoice(${voices.indexOf(v)})">▶ Testar</button>`;
+    list.appendChild(row);
+  });
+}
+
+function testVoice(idx) {
+  const voices = speechSynth.getVoices();
+  if (!voices[idx]) return;
+  speechSynth.cancel();
+  const t = new SpeechSynthesisUtterance('Olá, eu sou o JARVIS. Seu especialista de confiabilidade.');
+  t.voice = voices[idx];
+  t.lang  = voices[idx].lang;
+  t.rate  = 1.15;
+  t.pitch = 0.75;
+  speechSynth.speak(t);
+}
+
+function selectVoiceFromModal(idx, name, btn) {
+  manualVoiceIndex = idx;
+  // Update all buttons
+  document.querySelectorAll('.voice-option-btn').forEach(b => {
+    b.classList.remove('selected');
+    b.querySelector('span').style.color = 'rgba(0,168,255,.3)';
+    b.querySelector('span').textContent = '';
+  });
+  btn.classList.add('selected');
+  btn.querySelector('span').style.color = '#00FF88';
+  btn.querySelector('span').textContent = '✅ ATIVA';
+  // Test it
+  testVoice(idx);
+  // Close after short delay
+  setTimeout(closeVoiceSelector, 1800);
+}
+
+function closeVoiceSelector() {
+  document.getElementById('voiceSelectorModal').style.display = 'none';
+  speechSynth.cancel();
+}
+
+
+// ══════════════════════════════════════════
+// ELEVENLABS TTS
+// ══════════════════════════════════════════
+const ELEVENLABS_VOICE_ID = '1LOU3StepvzkJmJ7dMFj';
+const ELEVENLABS_MODEL    = 'eleven_multilingual_v2';
+
+let currentAudio = null;
+
+function getElevenLabsKey() {
+  return document.getElementById('elevenLabsKeyInput')?.value.trim() || '';
+}
+
+function saveElevenLabsKey() {
+  const key = getElevenLabsKey();
+  if (key) {
+    try { sessionStorage.setItem('dm_eleven_key', key); } catch(e){}
+    try { localStorage.setItem('dm_eleven_key', key); } catch(e){}
+  }
+  updateElevenLabsStatus();
+}
+
+function updateElevenLabsStatus() {
+  const key = getElevenLabsKey();
+  const status = document.getElementById('elevenLabsStatus');
+  if (!status) return;
+  if (key && key.startsWith('sk_')) {
+    status.className = 'api-key-status ok';
+    status.textContent = '✅ ElevenLabs OK';
+  } else if (key) {
+    status.className = 'api-key-status warn';
+    status.textContent = '⚠ Formato inválido';
+  } else {
+    status.className = 'api-key-status warn';
+    status.textContent = '⚠ Não configurada';
+  }
+}
+
+function toggleElevenLabsVisibility() {
+  const input = document.getElementById('elevenLabsKeyInput');
+  if (input) input.type = input.type === 'password' ? 'text' : 'password';
+}
+
+function stopCurrentAudio() {
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio.currentTime = 0;
+    currentAudio = null;
+  }
+  speechSynth.cancel();
+  isSpeaking = false;
+  document.getElementById('holoWaves')?.classList.remove('speaking');
+  document.getElementById('holoCore')?.style.removeProperty('filter');
+  document.getElementById('stopSpeakBtn').style.display = 'none';
+  setHudStatus('AGUARDANDO MISSÃO');
+}
+
+async function speakWithElevenLabs(text) {
+  const key = getElevenLabsKey();
+  if (!key || !key.startsWith('sk_')) {
+    // Fallback to browser TTS
+    jarvisSpeak(text);
+    return;
+  }
+
+  stopCurrentAudio();
+  const clean = cleanTextForSpeech(text);
+  if (!clean) return;
+
+  // Activate hologram
+  isSpeaking = true;
+  document.getElementById('holoWaves')?.classList.add('speaking');
+  document.getElementById('holoCore')?.style.setProperty('filter','drop-shadow(0 0 30px #00A8FF)');
+  document.getElementById('stopSpeakBtn').style.display = 'inline-flex';
+  setHudStatus('TRANSMITINDO VOZ...');
+  setStatusLine('Gerando áudio via ElevenLabs...', 70);
+
+  try {
+    const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${ELEVENLABS_VOICE_ID}/stream`, {
+      method: 'POST',
+      headers: {
+        'xi-api-key': key,
+        'Content-Type': 'application/json',
+        'Accept': 'audio/mpeg'
+      },
+      body: JSON.stringify({
+        text: clean,
+        model_id: ELEVENLABS_MODEL,
+        voice_settings: {
+          stability: 0.55,
+          similarity_boost: 0.85,
+          style: 0.25,
+          use_speaker_boost: true
+        }
+      })
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      console.error('ElevenLabs error:', err);
+      setHudStatus('ERRO DE VOZ — FALLBACK');
+      jarvisSpeak(text);
+      return;
+    }
+
+    const blob = await response.blob();
+    const url  = URL.createObjectURL(blob);
+    const audio = new Audio(url);
+    currentAudio = audio;
+
+    audio.onplay  = () => { setStatusLine('Reproduzindo voz JARVIS...', 100); };
+    audio.onended = () => {
+      isSpeaking = false;
+      currentAudio = null;
+      URL.revokeObjectURL(url);
+      document.getElementById('holoWaves')?.classList.remove('speaking');
+      document.getElementById('holoCore')?.style.removeProperty('filter');
+      document.getElementById('stopSpeakBtn').style.display = 'none';
+      setHudStatus('AGUARDANDO MISSÃO');
+      setStatusLine('Transmissão concluída.', 30);
+    };
+    audio.onerror = () => {
+      setHudStatus('ERRO DE ÁUDIO');
+      jarvisSpeak(text);
+    };
+
+    await audio.play();
+
+  } catch(err) {
+    console.error('ElevenLabs fetch error:', err);
+    isSpeaking = false;
+    document.getElementById('holoWaves')?.classList.remove('speaking');
+    setHudStatus('ERRO — USANDO VOZ LOCAL');
+    jarvisSpeak(text);
+  }
+}
+
+// Override stopSpeaking to also stop ElevenLabs audio
+const _origStopSpeaking = stopSpeaking;
+stopSpeaking = function() {
+  stopCurrentAudio();
+  speechSynth.cancel();
+};
+
+// Restore ElevenLabs key from session
+window.addEventListener('load', () => {
+  try {
+    const saved = sessionStorage.getItem('dm_eleven_key') || localStorage.getItem('dm_eleven_key');
+    if (saved) {
+      document.getElementById('elevenLabsKeyInput').value = saved;
+      updateElevenLabsStatus();
+    }
+  } catch(e) {}
+});
+
+</script>
+</body>
+</html>
